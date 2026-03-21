@@ -42,7 +42,6 @@ import { VideoConsultationComponent } from './features/telemedicine/video-consul
 import { CheckoutComponent } from './features/payment/checkout/checkout';
 import { PaymentSuccessComponent } from './features/payment/payment-success/payment-success';
 import { PaymentFailedComponent } from './features/payment/payment-failed/payment-failed';
-import { SymptomCheckerComponent } from './features/ai/symptom-checker/symptom-checker';
 import { UnauthorizedComponent } from './features/system/unauthorized/unauthorized';
 import { ErrorComponent } from './features/system/error/error';
 
@@ -53,7 +52,6 @@ export const routes: Routes = [
     children: [
       { path: '', component: LandingComponent },
       { path: 'find-doctors', component: FindDoctorsComponent },
-      { path: 'symptom-checker', component: SymptomCheckerComponent },
     ],
   },
 
