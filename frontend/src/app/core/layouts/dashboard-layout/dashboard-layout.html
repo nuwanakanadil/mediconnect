@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-slate-50 flex">
+  <div
+    *ngIf="isMobileSidebarOpen"
+    class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+    (click)="closeMobileSidebar()"
+  ></div>
+
+  <aside
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 ease-in-out"
+    [ngClass]="isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+  >
+    <div class="h-16 flex items-center px-6 border-b border-slate-200">
+      <a routerLink="/" class="flex items-center gap-2">
+        <div class="bg-medical-600 p-1.5 rounded-lg">
+          <lucide-icon [img]="HeartPulseIcon" class="h-5 w-5 text-white"></lucide-icon>
+        </div>
+        <span class="text-lg font-bold text-slate-900 tracking-tight">MediConnect</span>
+      </a>
+
+      <button class="ml-auto lg:hidden text-slate-500" (click)="closeMobileSidebar()">
+        <lucide-icon [img]="XIcon" class="h-5 w-5"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4 px-3">
+      <div class="mb-4 px-3">
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          {{ role.toUpperCase() }} PORTAL
+        </p>
+      </div>
+
+      <nav class="space-y-1">
+        <a
+          *ngFor="let item of navItems"
+          [routerLink]="item.path"
+          (click)="closeMobileSidebar()"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          [ngClass]="
+            isActive(item.path)
+              ? 'bg-medical-50 text-medical-700'
+              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          "
+        >
+          <lucide-icon
+            [img]="item.icon"
+            class="h-5 w-5"
+            [ngClass]="isActive(item.path) ? 'text-medical-600' : 'text-slate-400'"
+          ></lucide-icon>
+          {{ item.name }}
+        </a>
+      </nav>
+    </div>
+
+    <div class="p-4 border-t border-slate-200">
+      <button
+        (click)="logout()"
+        class="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+      >
+        <lucide-icon [img]="LogOutIcon" class="h-5 w-5 text-slate-400"></lucide-icon>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <header
+      class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30"
+    >
+      <div class="flex items-center gap-4">
+        <button class="lg:hidden text-slate-500 hover:text-slate-700" (click)="openMobileSidebar()">
+          <lucide-icon [img]="MenuIcon" class="h-6 w-6"></lucide-icon>
+        </button>
+
+        <div class="hidden sm:flex items-center relative">
+          <lucide-icon [img]="SearchIcon" class="h-4 w-4 text-slate-400 absolute left-3"></lucide-icon>
+          <input
+            type="text"
+            placeholder="Search..."
+            class="pl-12 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 focus:border-medical-500 w-64 transition-shadow"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a
+          [routerLink]="'/' + role + '/notifications'"
+          class="relative p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-100"
+        >
+          <lucide-icon [img]="BellIcon" class="h-5 w-5"></lucide-icon>
+          <span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+        </a>
+
+        <div class="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
+
+        <div class="flex items-center gap-3 cursor-pointer">
+          <div class="hidden sm:block text-right">
+            <p class="text-sm font-medium text-slate-700 leading-none">{{ displayName }}</p>
+            <p class="text-xs text-slate-500 mt-1 capitalize">{{ role }}</p>
+          </div>
+
+          <div
+            class="h-9 w-9 rounded-full bg-medical-100 flex items-center justify-center border border-medical-200 text-medical-700 font-bold"
+          >
+            {{ initials }}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+      <div class="max-w-7xl mx-auto">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

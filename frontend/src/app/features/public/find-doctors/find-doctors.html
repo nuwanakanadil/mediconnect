@@ -1,0 +1,334 @@
+<div class="bg-slate-50 min-h-screen py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Find a Doctor</h1>
+      <p class="text-slate-600 mb-6">
+        Book appointments with the best doctors in your area.
+      </p>
+
+      <div
+        class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-2"
+      >
+        <div class="relative flex-1">
+          <lucide-icon
+            [img]="SearchIcon"
+            class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"
+          ></lucide-icon>
+          <input
+            type="text"
+            placeholder="Search by doctor name..."
+            class="w-full pl-14 pr-4 py-3 bg-transparent focus:outline-none text-slate-900"
+          />
+        </div>
+
+        <div class="hidden md:block w-px bg-slate-200 my-2"></div>
+
+        <div class="relative flex-1 border-t md:border-t-0 border-slate-100 pt-2 md:pt-0">
+          <lucide-icon
+            [img]="MapPinIcon"
+            class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 md:mt-0 mt-1"
+          ></lucide-icon>
+          <input
+            type="text"
+            placeholder="Location or Hospital"
+            class="w-full pl-14 pr-4 py-3 bg-transparent focus:outline-none text-slate-900"
+          />
+        </div>
+
+        <button
+          class="bg-medical-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-medical-700 transition-colors"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <button
+        class="lg:hidden flex items-center justify-center gap-2 bg-white border border-slate-200 p-3 rounded-xl font-medium text-slate-700 shadow-sm"
+        (click)="toggleMobileFilters()"
+      >
+        <lucide-icon [img]="FilterIcon" class="h-5 w-5"></lucide-icon>
+        {{ isMobileFiltersOpen ? 'Hide Filters' : 'Show Filters' }}
+      </button>
+
+      <aside
+        class="lg:w-64 flex-shrink-0"
+        [class.hidden]="!isMobileFiltersOpen"
+        [class.lg:block]="true"
+      >
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-24">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-slate-900">Filters</h2>
+            <button class="text-sm text-medical-600 font-medium hover:text-medical-700">
+              Reset All
+            </button>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-slate-900 mb-3">Specialty</h3>
+            <div class="space-y-2">
+              <label
+                *ngFor="let spec of specialties; let i = index"
+                class="flex items-center gap-3 cursor-pointer group"
+              >
+                <div
+                  class="relative flex items-center justify-center w-5 h-5 border border-slate-300 rounded bg-white group-hover:border-medical-500 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    class="peer sr-only"
+                    [checked]="i === 0"
+                  />
+                  <lucide-icon
+                    [img]="CheckCircle2Icon"
+                    class="h-4 w-4 text-medical-600 opacity-0 peer-checked:opacity-100 absolute transition-opacity"
+                  ></lucide-icon>
+                </div>
+                <span class="text-sm text-slate-600 group-hover:text-slate-900">
+                  {{ spec }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-slate-900 mb-3">Availability</h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 cursor-pointer group">
+                <div
+                  class="relative flex items-center justify-center w-5 h-5 border border-slate-300 rounded bg-white group-hover:border-medical-500 transition-colors"
+                >
+                  <input type="checkbox" class="peer sr-only" />
+                  <lucide-icon
+                    [img]="CheckCircle2Icon"
+                    class="h-4 w-4 text-medical-600 opacity-0 peer-checked:opacity-100 absolute transition-opacity"
+                  ></lucide-icon>
+                </div>
+                <span class="text-sm text-slate-600 group-hover:text-slate-900">
+                  Available Today
+                </span>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer group">
+                <div
+                  class="relative flex items-center justify-center w-5 h-5 border border-slate-300 rounded bg-white group-hover:border-medical-500 transition-colors"
+                >
+                  <input type="checkbox" class="peer sr-only" />
+                  <lucide-icon
+                    [img]="CheckCircle2Icon"
+                    class="h-4 w-4 text-medical-600 opacity-0 peer-checked:opacity-100 absolute transition-opacity"
+                  ></lucide-icon>
+                </div>
+                <span class="text-sm text-slate-600 group-hover:text-slate-900">
+                  Available This Week
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-slate-900 mb-3">
+              Consultation Type
+            </h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 cursor-pointer group">
+                <div
+                  class="relative flex items-center justify-center w-5 h-5 border border-slate-300 rounded bg-white group-hover:border-medical-500 transition-colors"
+                >
+                  <input type="checkbox" class="peer sr-only" checked />
+                  <lucide-icon
+                    [img]="CheckCircle2Icon"
+                    class="h-4 w-4 text-medical-600 opacity-0 peer-checked:opacity-100 absolute transition-opacity"
+                  ></lucide-icon>
+                </div>
+                <span class="text-sm text-slate-600 group-hover:text-slate-900">
+                  In-Person Visit
+                </span>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer group">
+                <div
+                  class="relative flex items-center justify-center w-5 h-5 border border-slate-300 rounded bg-white group-hover:border-medical-500 transition-colors"
+                >
+                  <input type="checkbox" class="peer sr-only" />
+                  <lucide-icon
+                    [img]="CheckCircle2Icon"
+                    class="h-4 w-4 text-medical-600 opacity-0 peer-checked:opacity-100 absolute transition-opacity"
+                  ></lucide-icon>
+                </div>
+                <span class="text-sm text-slate-600 group-hover:text-slate-900">
+                  Video Consultation
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900 mb-3">
+              Consultation Fee
+            </h3>
+            <input
+              type="range"
+              min="0"
+              max="500"
+              class="w-full accent-medical-600"
+            />
+            <div class="flex justify-between text-xs text-slate-500 mt-2">
+              <span>$0</span>
+              <span>$500+</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex-1">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-slate-600">
+            <span class="font-bold text-slate-900">{{ doctors.length }}</span>
+            doctors found
+          </p>
+
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-slate-500">Sort by:</span>
+            <button
+              class="flex items-center gap-2 text-sm font-medium text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50"
+            >
+              Recommended
+              <lucide-icon [img]="ChevronDownIcon" class="h-4 w-4"></lucide-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div
+            *ngFor="let doctor of doctors"
+            class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow flex flex-col"
+          >
+            <div class="p-6 flex-1">
+              <div class="flex items-start gap-4 mb-4">
+                <div class="relative">
+                  <img
+                    [src]="doctor.image"
+                    [alt]="doctor.name"
+                    class="w-16 h-16 rounded-full object-cover border-2 border-slate-100"
+                  />
+                  <div
+                    class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"
+                  ></div>
+                </div>
+
+                <div>
+                  <h3 class="text-lg font-bold text-slate-900 leading-tight mb-1">
+                    {{ doctor.name }}
+                  </h3>
+                  <p class="text-sm text-medical-600 font-medium mb-1">
+                    {{ doctor.specialty }}
+                  </p>
+                  <p class="text-xs text-slate-500 flex items-center gap-2">
+                    <lucide-icon [img]="MapPinIcon" class="h-3 w-3"></lucide-icon>
+                    {{ doctor.hospital }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <lucide-icon
+                    [img]="StarIcon"
+                    class="h-4 w-4 text-amber-400 fill-amber-400"
+                  ></lucide-icon>
+                  <span class="font-bold text-slate-900 text-sm">
+                    {{ doctor.rating }}
+                  </span>
+                  <span class="text-xs text-slate-500">
+                    ({{ doctor.reviews }})
+                  </span>
+                </div>
+
+                <div class="text-right">
+                  <span class="text-xs text-slate-500 block">
+                    Consultation Fee
+                  </span>
+                  <span class="font-bold text-slate-900">${{ doctor.fee }}</span>
+                </div>
+              </div>
+
+              <div class="space-y-2 mb-6">
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <lucide-icon
+                    [img]="CalendarIcon"
+                    class="h-4 w-4 text-slate-400"
+                  ></lucide-icon>
+                  <span>
+                    Next Available:
+                    <span class="font-medium text-slate-900">
+                      {{ doctor.nextSlot }}
+                    </span>
+                  </span>
+                </div>
+
+                <div
+                  *ngIf="doctor.videoConsult"
+                  class="flex items-center gap-2 text-sm text-slate-600"
+                >
+                  <lucide-icon
+                    [img]="VideoIcon"
+                    class="h-4 w-4 text-medical-500"
+                  ></lucide-icon>
+                  <span>Video Consultation Available</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+              <a
+                routerLink="/patient/book-appointment"
+                class="flex-1 bg-medical-600 text-white text-center py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors"
+              >
+                Book Now
+              </a>
+              <button
+                class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors"
+              >
+                Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-10 flex justify-center">
+          <nav class="flex items-center gap-2">
+            <button
+              class="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+              disabled
+            >
+              Previous
+            </button>
+            <button
+              class="w-10 h-10 rounded-lg bg-medical-600 text-white font-medium flex items-center justify-center"
+            >
+              1
+            </button>
+            <button
+              class="w-10 h-10 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium flex items-center justify-center"
+            >
+              2
+            </button>
+            <button
+              class="w-10 h-10 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium flex items-center justify-center"
+            >
+              3
+            </button>
+            <span class="text-slate-500">...</span>
+            <button
+              class="p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+            >
+              Next
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

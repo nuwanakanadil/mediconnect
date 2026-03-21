@@ -1,0 +1,52 @@
+<div class="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4">
+  <div class="w-full max-w-2xl bg-white rounded-3xl shadow-card border border-slate-100 p-8 sm:p-10 text-center">
+    <div class="mx-auto mb-6 h-20 w-20 rounded-full bg-emerald-100 flex items-center justify-center">
+      <lucide-icon [img]="CheckCircle2Icon" class="h-10 w-10 text-emerald-600"></lucide-icon>
+    </div>
+
+    <h1 class="text-3xl font-bold text-slate-900 mb-3">Payment Successful</h1>
+    <p class="text-slate-500 mb-8 max-w-lg mx-auto">
+      Your appointment has been confirmed successfully. A receipt and booking confirmation have been generated.
+    </p>
+
+    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 text-left mb-8">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h2 class="font-bold text-slate-900">Booking Details</h2>
+          <p class="text-xs text-slate-500">Reference: INV-2026-1048</p>
+        </div>
+        <span class="text-sm font-bold text-emerald-600">$155.00</span>
+      </div>
+
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="flex items-center gap-3">
+          <lucide-icon [img]="CalendarIcon" class="h-4 w-4 text-slate-400"></lucide-icon>
+          <span>Oct 25, 2023 • 10:00 AM</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <lucide-icon [img]="VideoIcon" class="h-4 w-4 text-medical-500"></lucide-icon>
+          <span>Video Consultation with Dr. Sarah Smith</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        routerLink="/patient/dashboard"
+        class="bg-medical-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-medical-700 transition-colors flex items-center justify-center gap-2"
+      >
+        <lucide-icon [img]="HomeIcon" class="h-4 w-4"></lucide-icon>
+        Go to Dashboard
+      </a>
+
+      <button
+        type="button"
+        class="border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+      >
+        <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
+        Download Receipt
+      </button>
+    </div>
+  </div>
+</div>

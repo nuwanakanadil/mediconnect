@@ -1,0 +1,70 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Prescriptions</h1>
+      <p class="text-slate-500 text-sm mt-1">Create and manage digital prescriptions for patients.</p>
+    </div>
+
+    <button class="bg-medical-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2">
+      <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+      New Prescription
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-4 border-b border-slate-100">
+      <div class="relative max-w-sm">
+        <lucide-icon
+          [img]="SearchIcon"
+          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
+        ></lucide-icon>
+        <input
+          type="text"
+          placeholder="Search prescriptions..."
+          class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"
+        />
+      </div>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      <div *ngFor="let rx of prescriptions" class="p-6 hover:bg-slate-50/50 transition-colors">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="flex items-start gap-4">
+            <div class="h-12 w-12 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold border border-slate-200">
+              {{ initials(rx.patient) }}
+            </div>
+
+            <div>
+              <div class="flex items-center gap-3 mb-1 flex-wrap">
+                <h3 class="font-bold text-slate-900">{{ rx.patient }}</h3>
+                <app-status-badge [status]="rx.status"></app-status-badge>
+              </div>
+
+              <p class="text-sm text-slate-500 mb-3">{{ rx.id }} • {{ rx.date }}</p>
+
+              <div class="flex flex-wrap gap-2">
+                <span
+                  *ngFor="let med of rx.meds"
+                  class="inline-flex items-center gap-1 bg-medical-50 text-medical-700 px-2.5 py-1 rounded-md text-xs font-medium border border-medical-100"
+                >
+                  <lucide-icon [img]="PillIcon" class="h-3 w-3"></lucide-icon>
+                  {{ med }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button class="border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
+              Edit
+            </button>
+            <button class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
+              <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
+              PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

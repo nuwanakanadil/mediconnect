@@ -1,0 +1,238 @@
+<div class="space-y-6">
+  <div class="bg-medical-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
+    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+    <div class="absolute bottom-0 right-20 -mb-10 w-32 h-32 bg-medical-300 opacity-20 rounded-full blur-xl"></div>
+
+    <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2">Good morning, Alex!</h1>
+        <p class="text-medical-100">
+          Here's your health overview for today, {{ todayText }}.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <a
+          routerLink="/patient/book-appointment"
+          class="bg-white text-medical-700 px-4 py-2 rounded-xl font-medium hover:bg-medical-50 transition-colors shadow-sm flex items-center gap-2 text-sm"
+        >
+          <lucide-icon [img]="CalendarIcon" class="h-4 w-4"></lucide-icon>
+          Book Appointment
+        </a>
+
+        <a
+          routerLink="/telemedicine"
+          class="bg-medical-700 text-white border border-medical-500 px-4 py-2 rounded-xl font-medium hover:bg-medical-800 transition-colors shadow-sm flex items-center gap-2 text-sm"
+        >
+          <lucide-icon [img]="VideoIcon" class="h-4 w-4"></lucide-icon>
+          Join Call
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div
+      *ngFor="let stat of stats"
+      class="bg-white p-6 rounded-2xl shadow-card border border-slate-100 flex items-center gap-4"
+    >
+      <div [class]="stat.bg + ' ' + stat.color + ' p-3 rounded-xl'">
+        <lucide-icon [img]="stat.icon" class="h-6 w-6"></lucide-icon>
+      </div>
+
+      <div>
+        <p class="text-sm text-slate-500 font-medium mb-1">{{ stat.title }}</p>
+        <p class="text-2xl font-bold text-slate-900 leading-none">{{ stat.value }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h2 class="text-lg font-bold text-slate-900">Upcoming Appointments</h2>
+          <a
+            routerLink="/patient/appointments"
+            class="text-sm text-medical-600 font-medium hover:text-medical-700 flex items-center"
+          >
+            View All
+            <lucide-icon [img]="ChevronRightIcon" class="h-4 w-4"></lucide-icon>
+          </a>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+          <div
+            *ngFor="let apt of appointments"
+            class="p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div class="flex items-start gap-4">
+              <div class="h-12 w-12 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-lg border border-medical-200">
+                {{ getDoctorInitials(apt.doctor) }}
+              </div>
+
+              <div>
+                <h3 class="font-bold text-slate-900">{{ apt.doctor }}</h3>
+                <p class="text-sm text-slate-500 mb-2">{{ apt.spec }}</p>
+
+                <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
+                  <span class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md">
+                    <lucide-icon [img]="ClockIcon" class="h-3 w-3"></lucide-icon>
+                    {{ apt.date }}
+                  </span>
+
+                  <span class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md">
+                    <lucide-icon
+                      *ngIf="apt.type === 'Video Consult'"
+                      [img]="VideoIcon"
+                      class="h-3 w-3 text-medical-500"
+                    ></lucide-icon>
+                    <lucide-icon
+                      *ngIf="apt.type !== 'Video Consult'"
+                      [img]="ActivityIcon"
+                      class="h-3 w-3 text-blue-500"
+                    ></lucide-icon>
+                    {{ apt.type }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between sm:flex-col sm:items-end gap-3">
+              <app-status-badge [status]="apt.status"></app-status-badge>
+
+              <a
+                *ngIf="apt.type === 'Video Consult' && apt.status === 'confirmed'; else detailsBtn"
+                routerLink="/telemedicine"
+                class="text-sm bg-medical-50 text-medical-700 px-3 py-1.5 rounded-lg font-medium hover:bg-medical-100 transition-colors"
+              >
+                Join Call
+              </a>
+
+              <ng-template #detailsBtn>
+                <button
+                  class="text-sm border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg font-medium hover:bg-slate-50 transition-colors"
+                >
+                  Details
+                </button>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h2 class="text-lg font-bold text-slate-900">Recent Notifications</h2>
+          <a
+            routerLink="/patient/notifications"
+            class="text-sm text-medical-600 font-medium hover:text-medical-700 flex items-center"
+          >
+            View All
+            <lucide-icon [img]="ChevronRightIcon" class="h-4 w-4"></lucide-icon>
+          </a>
+        </div>
+
+        <div class="p-2">
+          <div
+            *ngFor="let notif of notifications"
+            class="p-4 rounded-xl mb-2 flex gap-4"
+            [ngClass]="notif.unread ? 'bg-medical-50/50' : 'hover:bg-slate-50'"
+          >
+            <div
+              class="mt-1 h-2 w-2 rounded-full flex-shrink-0"
+              [ngClass]="notif.unread ? 'bg-medical-500' : 'bg-transparent'"
+            ></div>
+
+            <div>
+              <h4
+                class="text-sm font-medium"
+                [ngClass]="notif.unread ? 'text-slate-900' : 'text-slate-700'"
+              >
+                {{ notif.title }}
+              </h4>
+
+              <p class="text-xs text-slate-500 mt-1 mb-2 leading-relaxed">
+                {{ notif.desc }}
+              </p>
+
+              <span class="text-xs text-slate-400 font-medium">
+                {{ notif.time }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h2 class="text-lg font-bold text-slate-900">Recent Prescriptions</h2>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div
+            *ngFor="let rx of prescriptions"
+            class="border border-slate-100 rounded-xl p-4 hover:border-medical-200 transition-colors group"
+          >
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-icon [img]="PillIcon" class="h-4 w-4 text-medical-500"></lucide-icon>
+                <h4 class="font-bold text-slate-900 text-sm">{{ rx.med }}</h4>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-500 mb-3">
+              Prescribed by {{ rx.doctor }} on {{ rx.date }}
+            </p>
+
+            <button class="text-xs font-medium text-medical-600 group-hover:text-medical-700 flex items-center gap-1">
+              View Details
+              <lucide-icon [img]="ChevronRightIcon" class="h-3 w-3"></lucide-icon>
+            </button>
+          </div>
+
+          <a
+            routerLink="/patient/prescriptions"
+            class="block w-full text-center text-sm text-slate-600 font-medium py-2 hover:text-slate-900 transition-colors"
+          >
+            View all prescriptions
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+          <h2 class="text-lg font-bold text-slate-900 mb-1">Medical Reports</h2>
+          <p class="text-xs text-slate-500">8 documents total</p>
+        </div>
+
+        <div class="p-6">
+          <div class="space-y-3 mb-6">
+            <div
+              *ngFor="let doc of reports"
+              class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100"
+            >
+              <div class="flex items-center gap-3 overflow-hidden">
+                <lucide-icon [img]="FileTextIcon" class="h-5 w-5 text-slate-400 flex-shrink-0"></lucide-icon>
+                <div class="truncate">
+                  <p class="text-sm font-medium text-slate-700 truncate">{{ doc.name }}</p>
+                  <p class="text-xs text-slate-500">{{ doc.date }} • {{ doc.size }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a
+            routerLink="/patient/medical-reports"
+            class="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 transition-colors"
+          >
+            <lucide-icon [img]="UploadIcon" class="h-4 w-4"></lucide-icon>
+            Upload New Report
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Appointments</h1>
+    <p class="text-slate-500 text-sm mt-1">Manage your daily schedule and patient requests.</p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
+        <button (click)="setActiveTab('today')" class="flex-1 sm:flex-none px-4 py-1.5 text-sm font-medium rounded-md transition-colors" [ngClass]="activeTab === 'today' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'">Today</button>
+        <button (click)="setActiveTab('upcoming')" class="flex-1 sm:flex-none px-4 py-1.5 text-sm font-medium rounded-md transition-colors" [ngClass]="activeTab === 'upcoming' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'">Upcoming</button>
+        <button (click)="setActiveTab('requests')" class="flex-1 sm:flex-none px-4 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-2 justify-center" [ngClass]="activeTab === 'requests' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'">
+          Requests
+          <span class="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">2</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <lucide-icon [img]="SearchIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></lucide-icon>
+          <input type="text" placeholder="Search patient name..." class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500" />
+        </div>
+        <button class="p-2 border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors">
+          <lucide-icon [img]="FilterIcon" class="h-4 w-4"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="px-6 py-4">Patient Info</th>
+            <th class="px-6 py-4">Date & Time</th>
+            <th class="px-6 py-4">Type</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <ng-container *ngIf="filteredAppointments.length > 0; else emptyState">
+            <tr *ngFor="let apt of filteredAppointments" class="hover:bg-slate-50/50 transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm">
+                    {{ initials(apt.patient) }}
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-900">{{ apt.patient }}</p>
+                    <p class="text-xs text-slate-500">{{ apt.age }} years old</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <p class="font-medium text-slate-900">{{ apt.date }}</p>
+                <p class="text-xs text-slate-500">{{ apt.time }}</p>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-1.5 text-slate-700">
+                  <lucide-icon [img]="apt.type === 'Video Consult' ? VideoIcon : MapPinIcon" class="h-4 w-4" [ngClass]="apt.type === 'Video Consult' ? 'text-medical-500' : 'text-blue-500'"></lucide-icon>
+                  <span class="font-medium">{{ apt.type }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <app-status-badge [status]="apt.status"></app-status-badge>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <ng-container *ngIf="apt.status === 'pending'; else confirmedActions">
+                    <button class="p-1.5 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors" title="Accept">
+                      <lucide-icon [img]="CheckIcon" class="h-5 w-5"></lucide-icon>
+                    </button>
+                    <button class="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" title="Decline">
+                      <lucide-icon [img]="XIcon" class="h-5 w-5"></lucide-icon>
+                    </button>
+                  </ng-container>
+                  <ng-template #confirmedActions>
+                    <a *ngIf="apt.type === 'Video Consult' && apt.date === 'Today'" routerLink="/telemedicine" class="px-3 py-1.5 bg-medical-600 text-white font-medium rounded-lg hover:bg-medical-700 transition-colors text-xs shadow-sm">
+                      Start Call
+                    </a>
+                    <button class="px-3 py-1.5 border border-slate-200 text-slate-600 font-medium rounded-lg hover:bg-slate-50 transition-colors text-xs">
+                      View Profile
+                    </button>
+                  </ng-template>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+
+      <ng-template #emptyState>
+        <div class="px-6 py-12 text-center text-slate-500">
+          <p class="text-base font-medium text-slate-900 mb-1">No appointments found</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

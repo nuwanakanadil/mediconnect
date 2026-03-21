@@ -1,0 +1,110 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Medical Reports</h1>
+      <p class="text-slate-500 text-sm mt-1">
+        Manage and view your lab results, scans, and clinical documents.
+      </p>
+    </div>
+  </div>
+
+  <div class="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:bg-slate-50 hover:border-medical-400 transition-colors cursor-pointer group">
+    <div class="mx-auto w-16 h-16 bg-medical-50 text-medical-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+      <lucide-icon [img]="UploadCloudIcon" class="h-8 w-8"></lucide-icon>
+    </div>
+    <h3 class="text-lg font-bold text-slate-900 mb-1">Upload New Report</h3>
+    <p class="text-sm text-slate-500 mb-4">
+      Drag and drop your files here, or click to browse
+    </p>
+    <p class="text-xs text-slate-400">
+      Supported formats: PDF, JPG, PNG (Max 10MB)
+    </p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <h2 class="text-lg font-bold text-slate-900">Your Documents</h2>
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <lucide-icon
+            [img]="SearchIcon"
+            class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
+          ></lucide-icon>
+          <input
+            type="text"
+            placeholder="Search reports..."
+            class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"
+          />
+        </div>
+        <button class="p-2 border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors flex items-center gap-2 text-sm font-medium">
+          <lucide-icon [img]="FilterIcon" class="h-4 w-4"></lucide-icon>
+          <span class="hidden sm:inline">Filter</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="px-6 py-4">Document Name</th>
+            <th class="px-6 py-4">Type</th>
+            <th class="px-6 py-4">Date Added</th>
+            <th class="px-6 py-4">Added By</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr
+            *ngFor="let report of reports"
+            class="hover:bg-slate-50/50 transition-colors"
+          >
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-slate-100 rounded-lg text-slate-500">
+                  <lucide-icon
+                    [img]="isPdf(report.name) ? FileTextIcon : FileIcon"
+                    class="h-5 w-5"
+                  ></lucide-icon>
+                </div>
+                <div>
+                  <p class="font-medium text-slate-900">{{ report.name }}</p>
+                  <p class="text-xs text-slate-500">{{ report.size }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                {{ report.type }}
+              </span>
+            </td>
+            <td class="px-6 py-4 font-medium text-slate-900">{{ report.date }}</td>
+            <td class="px-6 py-4">{{ report.doctor }}</td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button
+                  class="p-1.5 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
+                  title="View"
+                >
+                  <lucide-icon [img]="EyeIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+                <button
+                  class="p-1.5 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
+                  title="Download"
+                >
+                  <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+                <button
+                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  title="Delete"
+                >
+                  <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

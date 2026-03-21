@@ -1,0 +1,59 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Reviews & Ratings</h1>
+    <p class="text-slate-500 text-sm mt-1">See patient feedback and your performance overview.</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <p class="text-sm text-slate-500 font-medium mb-1">Average Rating</p>
+      <div class="flex items-center gap-2">
+        <p class="text-3xl font-bold text-slate-900">4.9</p>
+        <lucide-icon [img]="StarIcon" class="h-6 w-6 text-amber-400 fill-amber-400"></lucide-icon>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <p class="text-sm text-slate-500 font-medium mb-1">Total Reviews</p>
+      <div class="flex items-center gap-2">
+        <p class="text-3xl font-bold text-slate-900">128</p>
+        <lucide-icon [img]="MessageSquareIcon" class="h-6 w-6 text-blue-500"></lucide-icon>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <p class="text-sm text-slate-500 font-medium mb-1">Recommendation Rate</p>
+      <div class="flex items-center gap-2">
+        <p class="text-3xl font-bold text-slate-900">98%</p>
+        <lucide-icon [img]="TrendingUpIcon" class="h-6 w-6 text-emerald-500"></lucide-icon>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-6 border-b border-slate-100">
+      <h2 class="text-lg font-bold text-slate-900">Recent Patient Feedback</h2>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      <div *ngFor="let review of reviews" class="p-6">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <div>
+            <h3 class="font-bold text-slate-900">{{ review.patient }}</h3>
+            <p class="text-xs text-slate-500">{{ review.date }}</p>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <lucide-icon
+              *ngFor="let _ of stars(review.rating)"
+              [img]="StarIcon"
+              class="h-4 w-4 text-amber-400 fill-amber-400"
+            ></lucide-icon>
+          </div>
+        </div>
+
+        <p class="text-sm text-slate-600 leading-relaxed">
+          {{ review.comment }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

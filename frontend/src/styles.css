@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-medical-50: #fff6f2;
+  --color-medical-100: #ffe8de;
+  --color-medical-200: #ffd0bd;
+  --color-medical-300: #ffaf8f;
+  --color-medical-400: #f9855f;
+  --color-medical-500: #ee633d;
+  --color-medical-600: #d94f2d;
+  --color-medical-700: #b63f25;
+  --color-medical-800: #923522;
+  --color-medical-900: #772f22;
+
+  --color-healthcare-50: #fff9ed;
+  --color-healthcare-100: #fff1d4;
+  --color-healthcare-200: #ffe1a8;
+  --color-healthcare-300: #ffca70;
+  --color-healthcare-400: #ffae3d;
+  --color-healthcare-500: #f8901f;
+  --color-healthcare-600: #dd6f14;
+  --color-healthcare-700: #b75413;
+  --color-healthcare-800: #944217;
+  --color-healthcare-900: #783816;
+
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-slide-up: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

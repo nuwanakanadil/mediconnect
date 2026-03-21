@@ -1,0 +1,84 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Payments Overview</h1>
+    <p class="text-slate-500 text-sm mt-1">
+      Track transactions, revenue, refunds, and payment status across the platform.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <div class="flex items-center gap-3 mb-2">
+        <lucide-icon [img]="CreditCardIcon" class="h-5 w-5 text-medical-600"></lucide-icon>
+        <p class="text-sm font-medium text-slate-500">Total Revenue</p>
+      </div>
+      <p class="text-3xl font-bold text-slate-900">$84,220</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <div class="flex items-center gap-3 mb-2">
+        <lucide-icon [img]="TrendingUpIcon" class="h-5 w-5 text-emerald-600"></lucide-icon>
+        <p class="text-sm font-medium text-slate-500">Refunded</p>
+      </div>
+      <p class="text-3xl font-bold text-slate-900">$4,210</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <div class="flex items-center gap-3 mb-2">
+        <lucide-icon [img]="CreditCardIcon" class="h-5 w-5 text-amber-600"></lucide-icon>
+        <p class="text-sm font-medium text-slate-500">Pending Payments</p>
+      </div>
+      <p class="text-3xl font-bold text-slate-900">$1,120</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="relative w-full sm:w-72">
+        <lucide-icon
+          [img]="SearchIcon"
+          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
+        ></lucide-icon>
+        <input
+          type="text"
+          placeholder="Search payments..."
+          class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"
+        />
+      </div>
+
+      <button class="flex items-center gap-2 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
+        <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
+        Export
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="px-6 py-4">Payment</th>
+            <th class="px-6 py-4">User</th>
+            <th class="px-6 py-4">Date</th>
+            <th class="px-6 py-4">Amount</th>
+            <th class="px-6 py-4">Status</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let p of payments" class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-6 py-4">
+              <p class="font-bold text-slate-900">{{ p.id }}</p>
+              <p class="text-xs text-slate-500">{{ p.description }}</p>
+            </td>
+            <td class="px-6 py-4 font-medium text-slate-900">{{ p.user }}</td>
+            <td class="px-6 py-4">{{ p.date }}</td>
+            <td class="px-6 py-4 font-bold text-slate-900">{{ p.amount }}</td>
+            <td class="px-6 py-4">
+              <app-status-badge [status]="p.status"></app-status-badge>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

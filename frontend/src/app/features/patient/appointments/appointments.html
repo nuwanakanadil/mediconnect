@@ -1,0 +1,185 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">My Appointments</h1>
+      <p class="text-slate-500 text-sm mt-1">
+        Manage your upcoming and past consultations.
+      </p>
+    </div>
+
+    <a
+      routerLink="/patient/book-appointment"
+      class="bg-medical-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2"
+    >
+      <lucide-icon [img]="CalendarIcon" class="h-4 w-4"></lucide-icon>
+      Book New
+    </a>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
+        <button
+          type="button"
+          (click)="setActiveTab('upcoming')"
+          class="flex-1 sm:flex-none px-4 py-1.5 text-sm font-medium rounded-md transition-colors"
+          [ngClass]="activeTab === 'upcoming' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+        >
+          Upcoming
+        </button>
+
+        <button
+          type="button"
+          (click)="setActiveTab('past')"
+          class="flex-1 sm:flex-none px-4 py-1.5 text-sm font-medium rounded-md transition-colors"
+          [ngClass]="activeTab === 'past' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+        >
+          Past
+        </button>
+
+        <button
+          type="button"
+          (click)="setActiveTab('cancelled')"
+          class="flex-1 sm:flex-none px-4 py-1.5 text-sm font-medium rounded-md transition-colors"
+          [ngClass]="activeTab === 'cancelled' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+        >
+          Cancelled
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <lucide-icon
+            [img]="SearchIcon"
+            class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
+          ></lucide-icon>
+          <input
+            type="text"
+            placeholder="Search doctor or specialty..."
+            class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"
+          />
+        </div>
+
+        <button
+          type="button"
+          class="p-2 border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors"
+        >
+          <lucide-icon [img]="FilterIcon" class="h-4 w-4"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="px-6 py-4">Doctor Info</th>
+            <th class="px-6 py-4">Date &amp; Time</th>
+            <th class="px-6 py-4">Type</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+          <ng-container *ngIf="filteredAppointments.length > 0; else emptyState">
+            <tr
+              *ngFor="let apt of filteredAppointments"
+              class="hover:bg-slate-50/50 transition-colors"
+            >
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-sm border border-medical-200">
+                    {{ getDoctorInitials(apt.doctor) }}
+                  </div>
+
+                  <div>
+                    <p class="font-bold text-slate-900">{{ apt.doctor }}</p>
+                    <p class="text-xs text-slate-500">{{ apt.specialty }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <td class="px-6 py-4">
+                <p class="font-medium text-slate-900">{{ apt.date }}</p>
+                <p class="text-xs text-slate-500">{{ apt.time }}</p>
+              </td>
+
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-1.5 text-slate-700">
+                  <lucide-icon
+                    *ngIf="apt.type === 'Video Consult'; else inPersonIcon"
+                    [img]="VideoIcon"
+                    class="h-4 w-4 text-medical-500"
+                  ></lucide-icon>
+
+                  <ng-template #inPersonIcon>
+                    <lucide-icon
+                      [img]="MapPinIcon"
+                      class="h-4 w-4 text-blue-500"
+                    ></lucide-icon>
+                  </ng-template>
+
+                  <span class="font-medium">{{ apt.type }}</span>
+                </div>
+              </td>
+
+              <td class="px-6 py-4">
+                <app-status-badge [status]="apt.status"></app-status-badge>
+              </td>
+
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a
+                    *ngIf="apt.type === 'Video Consult' && apt.status === 'confirmed'"
+                    routerLink="/telemedicine"
+                    class="px-3 py-1.5 bg-medical-50 text-medical-700 font-medium rounded-lg hover:bg-medical-100 transition-colors text-xs"
+                  >
+                    Join Call
+                  </a>
+
+                  <button
+                    type="button"
+                    class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <lucide-icon [img]="MoreVerticalIcon" class="h-5 w-5"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+
+      <ng-template #emptyState>
+        <div class="px-6 py-12 text-center text-slate-500">
+          <lucide-icon [img]="CalendarIcon" class="h-12 w-12 mx-auto text-slate-300 mb-3"></lucide-icon>
+          <p class="text-base font-medium text-slate-900 mb-1">No appointments found</p>
+          <p class="text-sm">You don't have any {{ activeTab }} appointments.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+      <span>Showing {{ filteredAppointments.length }} appointments</span>
+
+      <div class="flex gap-1">
+        <button
+          type="button"
+          class="px-3 py-1 border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50"
+          disabled
+        >
+          Prev
+        </button>
+
+        <button
+          type="button"
+          class="px-3 py-1 border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50"
+          disabled
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Dependents</h1>
+      <p class="text-slate-500 text-sm mt-1">
+        Manage family members and book appointments on their behalf.
+      </p>
+    </div>
+
+    <button
+      class="bg-medical-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2"
+    >
+      <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+      Add Dependent
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div
+      *ngFor="let dependent of dependents"
+      class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden"
+    >
+      <div class="p-6 border-b border-slate-100 flex items-start justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="h-14 w-14 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center border border-medical-200">
+            <lucide-icon [img]="UserIcon" class="h-7 w-7"></lucide-icon>
+          </div>
+
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">{{ dependent.name }}</h2>
+            <p class="text-sm text-slate-500">
+              {{ dependent.relationship }} • {{ dependent.gender }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+          title="Remove dependent"
+        >
+          <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-xl bg-slate-50 border border-slate-100 p-4">
+            <div class="flex items-center gap-2 mb-1">
+              <lucide-icon [img]="CalendarIcon" class="h-4 w-4 text-slate-400"></lucide-icon>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Age</p>
+            </div>
+            <p class="text-lg font-bold text-slate-900">{{ dependent.age }}</p>
+          </div>
+
+          <div class="rounded-xl bg-slate-50 border border-slate-100 p-4">
+            <div class="flex items-center gap-2 mb-1">
+              <lucide-icon [img]="HeartIcon" class="h-4 w-4 text-slate-400"></lucide-icon>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Blood Type</p>
+            </div>
+            <p class="text-lg font-bold text-slate-900">{{ dependent.bloodType }}</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl bg-amber-50 border border-amber-100 p-4">
+          <div class="flex items-center gap-2 mb-1">
+            <lucide-icon [img]="ShieldIcon" class="h-4 w-4 text-amber-600"></lucide-icon>
+            <p class="text-xs font-medium text-amber-700 uppercase tracking-wider">Medical Notes</p>
+          </div>
+          <p class="text-sm text-amber-900">{{ dependent.notes }}</p>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button
+            class="flex-1 bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors"
+          >
+            Edit Details
+          </button>
+
+          <button
+            class="flex-1 bg-medical-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-medical-700 transition-colors"
+          >
+            Book Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-dashed border-slate-300 p-8 text-center">
+    <div class="mx-auto h-14 w-14 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mb-4">
+      <lucide-icon [img]="PlusIcon" class="h-6 w-6"></lucide-icon>
+    </div>
+    <h3 class="text-lg font-bold text-slate-900 mb-2">Add a new dependent</h3>
+    <p class="text-sm text-slate-500 mb-5">
+      Store family member details to manage appointments and records more easily.
+    </p>
+    <button
+      class="bg-medical-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors"
+    >
+      Add Dependent
+    </button>
+  </div>
+</div>

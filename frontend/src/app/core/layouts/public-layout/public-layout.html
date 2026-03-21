@@ -1,0 +1,156 @@
+<div class="min-h-screen flex flex-col bg-slate-50">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <a routerLink="/" class="flex items-center gap-2">
+            <div class="bg-medical-600 p-1.5 rounded-lg">
+              <lucide-icon [img]="HeartPulseIcon" class="h-6 w-6 text-white"></lucide-icon>
+            </div>
+            <span class="text-xl font-bold text-slate-900 tracking-tight">
+              MediConnect
+            </span>
+          </a>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-8">
+          <a
+            *ngFor="let link of navLinks"
+            [routerLink]="link.path"
+            routerLinkActive="text-medical-600"
+            [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+            class="text-sm font-medium transition-colors hover:text-medical-600 text-slate-600"
+          >
+            {{ link.name }}
+          </a>
+
+          <div class="flex items-center gap-4 ml-4 border-l border-slate-200 pl-8">
+            <a
+              routerLink="/login"
+              class="text-sm font-medium text-slate-600 hover:text-medical-600 transition-colors"
+            >
+              Log in
+            </a>
+            <a
+              routerLink="/register"
+              class="text-sm font-medium bg-medical-600 text-white px-4 py-2 rounded-lg hover:bg-medical-700 transition-colors shadow-sm"
+            >
+              Sign up
+            </a>
+          </div>
+        </nav>
+
+        <div class="flex items-center md:hidden">
+          <button
+            type="button"
+            (click)="toggleMobileMenu()"
+            class="text-slate-500 hover:text-slate-700 p-2"
+          >
+            <lucide-icon
+              *ngIf="!isMobileMenuOpen"
+              [img]="MenuIcon"
+              class="h-6 w-6"
+            ></lucide-icon>
+            <lucide-icon
+              *ngIf="isMobileMenuOpen"
+              [img]="XIcon"
+              class="h-6 w-6"
+            ></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isMobileMenuOpen" class="md:hidden bg-white border-b border-slate-200">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a
+          *ngFor="let link of navLinks"
+          [routerLink]="link.path"
+          class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-medical-600 hover:bg-slate-50"
+          (click)="closeMobileMenu()"
+        >
+          {{ link.name }}
+        </a>
+
+        <div class="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-2 px-3">
+          <a
+            routerLink="/login"
+            class="block text-center px-4 py-2 rounded-lg text-base font-medium text-slate-700 border border-slate-300 hover:bg-slate-50"
+            (click)="closeMobileMenu()"
+          >
+            Log in
+          </a>
+          <a
+            routerLink="/register"
+            class="block text-center px-4 py-2 rounded-lg text-base font-medium bg-medical-600 text-white hover:bg-medical-700"
+            (click)="closeMobileMenu()"
+          >
+            Sign up
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="bg-slate-900 text-slate-300 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="col-span-1 md:col-span-1">
+          <a routerLink="/" class="flex items-center gap-2 mb-4">
+            <lucide-icon [img]="HeartPulseIcon" class="h-6 w-6 text-medical-500"></lucide-icon>
+            <span class="text-xl font-bold text-white tracking-tight">
+              MediConnect
+            </span>
+          </a>
+          <p class="text-sm text-slate-400 mb-4">
+            Your trusted partner in digital healthcare. Connecting patients
+            with top medical professionals anytime, anywhere.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            For Patients
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li><a routerLink="/find-doctors" class="hover:text-medical-400 transition-colors">Find a Doctor</a></li>
+            <li><a routerLink="/login" class="hover:text-medical-400 transition-colors">Book Appointment</a></li>
+            <li><a routerLink="/symptom-checker" class="hover:text-medical-400 transition-colors">Symptom Checker</a></li>
+            <li><a routerLink="/login" class="hover:text-medical-400 transition-colors">Video Consultations</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            For Doctors
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li><a routerLink="/register" class="hover:text-medical-400 transition-colors">Join MediConnect</a></li>
+            <li><a routerLink="/login" class="hover:text-medical-400 transition-colors">Provider Dashboard</a></li>
+            <li><a href="#" class="hover:text-medical-400 transition-colors">Clinical Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            Support
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-medical-400 transition-colors">Help Center</a></li>
+            <li><a href="#" class="hover:text-medical-400 transition-colors">Contact Us</a></li>
+            <li><a href="#" class="hover:text-medical-400 transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-medical-400 transition-colors">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-slate-800 text-sm text-slate-500 text-center">
+        © 2026 MediConnect. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,99 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Payment History</h1>
+    <p class="text-slate-500 text-sm mt-1">
+      View your transactions, invoices, and refunds.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <p class="text-sm text-slate-500 font-medium mb-1">Total Paid</p>
+      <p class="text-3xl font-bold text-slate-900">$1,240.00</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <p class="text-sm text-slate-500 font-medium mb-1">Pending Payments</p>
+      <p class="text-3xl font-bold text-amber-600">$200.00</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <p class="text-sm text-slate-500 font-medium mb-1">Total Refunded</p>
+      <p class="text-3xl font-bold text-emerald-600">$120.00</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <h2 class="text-lg font-bold text-slate-900">Recent Transactions</h2>
+      <div class="relative w-full sm:w-64">
+        <lucide-icon
+          [img]="SearchIcon"
+          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
+        ></lucide-icon>
+        <input
+          type="text"
+          placeholder="Search transactions..."
+          class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"
+        />
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="px-6 py-4">Transaction Details</th>
+            <th class="px-6 py-4">Date</th>
+            <th class="px-6 py-4">Amount</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Receipt</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr
+            *ngFor="let txn of transactions"
+            class="hover:bg-slate-50/50 transition-colors"
+          >
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="p-2 rounded-lg"
+                  [ngClass]="txn.type === 'refund' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-600'"
+                >
+                  <lucide-icon
+                    [img]="txn.type === 'refund' ? ArrowDownLeftIcon : ArrowUpRightIcon"
+                    class="h-4 w-4"
+                  ></lucide-icon>
+                </div>
+                <div>
+                  <p class="font-medium text-slate-900">{{ txn.desc }}</p>
+                  <p class="text-xs text-slate-500">{{ txn.id }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 font-medium">{{ txn.date }}</td>
+            <td class="px-6 py-4">
+              <span
+                class="font-bold"
+                [ngClass]="txn.type === 'refund' ? 'text-emerald-600' : 'text-slate-900'"
+              >
+                {{ txn.type === 'refund' ? '+' : '' }}${{ txn.amount.toFixed(2) }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <app-status-badge [status]="txn.status"></app-status-badge>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button
+                *ngIf="txn.status !== 'pending'"
+                class="inline-flex items-center gap-1.5 text-medical-600 hover:text-medical-700 font-medium text-xs bg-medical-50 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <lucide-icon [img]="DownloadIcon" class="h-3 w-3"></lucide-icon>
+                PDF
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
