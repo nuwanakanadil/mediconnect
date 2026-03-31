@@ -44,58 +44,86 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-slate-600">
-        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
-          <tr>
-            <th class="px-6 py-4">Document Name</th>
-            <th class="px-6 py-4">Type</th>
-            <th class="px-6 py-4">Date Added</th>
-            <th class="px-6 py-4">Added By</th>
-            <th class="px-6 py-4 text-right">Actions</th>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Report Name
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Type
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Upload Date
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+              Actions
+            </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngIf="loading" class="text-center py-8">
+            <td colspan="4" class="px-6 py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-600 mx-auto"></div>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && reports.length === 0" class="text-center py-8">
+            <td colspan="4" class="px-6 py-8 text-slate-500 italic">
+              No reports found. Upload your first report!
+            </td>
+          </tr>
           <tr
             *ngFor="let report of reports"
-            class="hover:bg-slate-50/50 transition-colors"
+            class="hover:bg-slate-50/50 transition-colors group"
           >
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center gap-3">
-                <div class="p-2 bg-slate-100 rounded-lg text-slate-500">
+                <div
+                  [class]="
+                    'p-2 rounded-lg ' +
+                    (isPdf(report.originalFileName)
+                      ? 'bg-rose-50 text-rose-600'
+                      : 'bg-blue-50 text-blue-600')
+                  "
+                >
                   <lucide-icon
-                    [img]="isPdf(report.name) ? FileTextIcon : FileIcon"
+                    [img]="isPdf(report.originalFileName) ? FileTextIcon : FileIcon"
                     class="h-5 w-5"
                   ></lucide-icon>
                 </div>
                 <div>
-                  <p class="font-medium text-slate-900">{{ report.name }}</p>
-                  <p class="text-xs text-slate-500">{{ report.size }}</p>
+                  <div class="font-medium text-slate-900 group-hover:text-medical-600 transition-colors">
+                    {{ report.originalFileName }}
+                  </div>
+                  <div class="text-xs text-slate-500">{{ report.description }}</div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                {{ report.type }}
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                {{ report.fileType }}
               </span>
             </td>
-            <td class="px-6 py-4 font-medium text-slate-900">{{ report.date }}</td>
-            <td class="px-6 py-4">{{ report.doctor }}</td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+              {{ formatDate(report.uploadedAt) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right">
+              <div class="flex items-center justify-end gap-1">
                 <button
-                  class="p-1.5 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
+                  class="p-2 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
                   title="View"
                 >
                   <lucide-icon [img]="EyeIcon" class="h-4 w-4"></lucide-icon>
                 </button>
                 <button
-                  class="p-1.5 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
+                  class="p-2 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
                   title="Download"
                 >
                   <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
                 </button>
                 <button
-                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  (click)="deleteReport(report.id)"
+                  class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                   title="Delete"
                 >
                   <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>

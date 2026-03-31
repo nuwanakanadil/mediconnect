@@ -19,6 +19,7 @@ import { PaymentsComponent as PatientPaymentsComponent } from './features/patien
 import { ProfileComponent as PatientProfileComponent } from './features/patient/profile/profile';
 import { NotificationsComponent as PatientNotificationsComponent } from './features/patient/notifications/notifications';
 import { DependentsComponent } from './features/patient/dependents/dependents';
+import { MedicalHistoryComponent } from './features/patient/medical-history/medical-history';
 
 import { DashboardComponent as DoctorDashboardComponent } from './features/doctor/dashboard/dashboard';
 import { ScheduleComponent as DoctorScheduleComponent } from './features/doctor/schedule/schedule';
@@ -73,6 +74,7 @@ export const routes: Routes = [
       { path: 'notifications', component: PatientNotificationsComponent },
       { path: 'profile', component: PatientProfileComponent },
       { path: 'dependents', component: DependentsComponent },
+      { path: 'medical-history', component: MedicalHistoryComponent },
     ],
   },
 
