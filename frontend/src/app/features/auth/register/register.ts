@@ -58,15 +58,32 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       this.loading = true;
       this.errorMessage = '';
-      this.patientService.register(this.registerForm.value).subscribe({
+      
+      const formValue = this.registerForm.value;
+      const registrationData = {
+        fullName: `${formValue.firstName} ${formValue.lastName}`,
+        email: formValue.email,
+        password: formValue.password,
+        phone: formValue.phone
+      };
+
+      this.patientService.register(registrationData).subscribe({
         next: () => {
           this.success = true;
           this.loading = false;
           setTimeout(() => this.router.navigate(['/login']), 2000);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
           this.loading = false;
+          if (err.error && typeof err.error === 'object') {
+            if (err.error.message) {
+              this.errorMessage = err.error.message;
+            } else {
+              this.errorMessage = Object.values(err.error).join(', ');
+            }
+          } else {
+            this.errorMessage = 'Registration failed. Please try again.';
+          }
         }
       });
     }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-03-31T18:28:39+0530",
+    date = "2026-04-01T01:13:23+0530",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
@@ -28,6 +28,7 @@ public class PrescriptionMapperImpl implements PrescriptionMapper {
         prescriptionDto.medicationDetails( prescription.getMedicationDetails() );
         prescriptionDto.issuedDate( prescription.getIssuedDate() );
         prescriptionDto.notes( prescription.getNotes() );
+        prescriptionDto.status( prescription.getStatus() );
 
         return prescriptionDto.build();
     }
@@ -47,6 +48,7 @@ public class PrescriptionMapperImpl implements PrescriptionMapper {
         prescription.medicationDetails( prescriptionDto.getMedicationDetails() );
         prescription.issuedDate( prescriptionDto.getIssuedDate() );
         prescription.notes( prescriptionDto.getNotes() );
+        prescription.status( prescriptionDto.getStatus() );
 
         return prescription.build();
     }

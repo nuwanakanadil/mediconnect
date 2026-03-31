@@ -1,7 +1,6 @@
 package com.mediconnect.patientservice.dto;
 
 import lombok.*;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -14,6 +13,7 @@ public class PrescriptionDto {
     private String doctorId;
     private String doctorName;
     private String medicationDetails;
-    private LocalDate issuedDate;
+    private java.time.LocalDate issuedDate;
     private String notes;
+    private String status;
 }

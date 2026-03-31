@@ -23,4 +23,5 @@ public class Prescription {
     private String medicationDetails;
     private LocalDate issuedDate;
     private String notes;
+    private String status;
 }

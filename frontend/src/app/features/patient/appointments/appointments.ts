@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   CalendarIcon,
@@ -11,19 +11,11 @@ import {
   LucideAngularModule,
 } from 'lucide-angular';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
+import { PatientService } from '../../../core/services/patient.service';
+import { Appointment } from '../../../core/models/patient.model';
 
 type TabType = 'upcoming' | 'past' | 'cancelled';
 
-interface AppointmentItem {
-  id: string;
-  doctor: string;
-  specialty: string;
-  date: string;
-  time: string;
-  type: string;
-  status: string;
-  fee: string;
-}
 
 @Component({
   selector: 'app-appointments',
@@ -32,7 +24,7 @@ interface AppointmentItem {
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
-export class AppointmentsComponent {
+export class AppointmentsComponent implements OnInit {
   readonly CalendarIcon = CalendarIcon;
   readonly SearchIcon = SearchIcon;
   readonly FilterIcon = FilterIcon;
@@ -41,91 +33,71 @@ export class AppointmentsComponent {
   readonly MoreVerticalIcon = MoreVerticalIcon;
 
   activeTab: TabType = 'upcoming';
+  appointments: Appointment[] = [];
+  loading = true;
+  errorMessage = '';
 
-  appointments: AppointmentItem[] = [
-    {
-      id: 'APT-1001',
-      doctor: 'Dr. Sarah Smith',
-      specialty: 'Cardiology',
-      date: 'Oct 25, 2023',
-      time: '10:00 AM',
-      type: 'Video Consult',
-      status: 'confirmed',
-      fee: '$150',
-    },
-    {
-      id: 'APT-1002',
-      doctor: 'Dr. Michael Chen',
-      specialty: 'Neurology',
-      date: 'Oct 28, 2023',
-      time: '02:30 PM',
-      type: 'In-Person',
-      status: 'pending',
-      fee: '$200',
-    },
-    {
-      id: 'APT-1003',
-      doctor: 'Dr. Emily Johnson',
-      specialty: 'Pediatrics',
-      date: 'Nov 02, 2023',
-      time: '11:15 AM',
-      type: 'In-Person',
-      status: 'confirmed',
-      fee: '$120',
-    },
-    {
-      id: 'APT-0998',
-      doctor: 'Dr. Robert Taylor',
-      specialty: 'General Medicine',
-      date: 'Oct 15, 2023',
-      time: '09:00 AM',
-      type: 'In-Person',
-      status: 'completed',
-      fee: '$100',
-    },
-    {
-      id: 'APT-0985',
-      doctor: 'Dr. Lisa Patel',
-      specialty: 'Dermatology',
-      date: 'Sep 28, 2023',
-      time: '04:00 PM',
-      type: 'Video Consult',
-      status: 'completed',
-      fee: '$160',
-    },
-    {
-      id: 'APT-0970',
-      doctor: 'Dr. James Wilson',
-      specialty: 'Orthopedics',
-      date: 'Sep 10, 2023',
-      time: '01:30 PM',
-      type: 'In-Person',
-      status: 'cancelled',
-      fee: '$180',
-    },
-  ];
+  constructor(private patientService: PatientService) {}
+
+  ngOnInit(): void {
+    this.loadAppointments();
+  }
+
+  loadAppointments(): void {
+    this.loading = true;
+    this.patientService.getAppointments().subscribe({
+      next: (data: Appointment[]) => {
+        this.appointments = data;
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.errorMessage = 'Failed to load appointments.';
+        this.loading = false;
+      }
+    });
+  }
 
   setActiveTab(tab: TabType) {
     this.activeTab = tab;
   }
 
-  get filteredAppointments(): AppointmentItem[] {
+  get filteredAppointments(): Appointment[] {
     return this.appointments.filter((apt) => {
+      const status = apt.status?.toLowerCase();
       if (this.activeTab === 'upcoming') {
-        return apt.status === 'confirmed' || apt.status === 'pending';
+        return status === 'confirmed' || status === 'pending';
       }
       if (this.activeTab === 'past') {
-        return apt.status === 'completed';
+        return status === 'completed';
       }
       if (this.activeTab === 'cancelled') {
-        return apt.status === 'cancelled';
+        return status === 'cancelled';
       }
       return true;
     });
   }
 
   getDoctorInitials(doctor: string): string {
+    if (!doctor) return '??';
     const parts = doctor.split(' ');
+    if (parts.length < 2) return doctor.substring(0, 2).toUpperCase();
     return `${parts[1]?.[0] ?? ''}${parts[2]?.[0] ?? ''}`;
+  }
+
+  formatDate(dateTimeStr: string): string {
+    if (!dateTimeStr) return 'TBD';
+    return new Date(dateTimeStr).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  formatTime(dateTimeStr: string): string {
+    if (!dateTimeStr) return 'TBD';
+    return new Date(dateTimeStr).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 }

@@ -13,9 +13,11 @@ import {
   CreditCardIcon,
   LucideAngularModule,
 } from 'lucide-angular';
+import { PatientService } from '../../../core/services/patient.service';
+import { Appointment } from '../../../core/models/patient.model';
 
 interface Doctor {
-  id: number;
+  id: string;
   name: string;
   specialty: string;
   hospital: string;
@@ -62,7 +64,7 @@ export class BookAppointmentComponent {
 
   doctors: Doctor[] = [
     {
-      id: 1,
+      id: 'doc-1',
       name: 'Dr. Sarah Smith',
       specialty: 'Cardiology',
       hospital: 'Metro General Hospital',
@@ -72,7 +74,7 @@ export class BookAppointmentComponent {
         'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80',
     },
     {
-      id: 2,
+      id: 'doc-2',
       name: 'Dr. Michael Chen',
       specialty: 'Cardiology',
       hospital: 'City Medical Center',
@@ -104,7 +106,10 @@ export class BookAppointmentComponent {
     { num: 4, label: 'Confirm' },
   ];
 
-  constructor(private router: Router) {}
+  loading = false;
+  errorMessage = '';
+
+  constructor(private router: Router, private patientService: PatientService) {}
 
   handleNext() {
     this.step = Math.min(this.step + 1, 4);
@@ -129,7 +134,39 @@ export class BookAppointmentComponent {
   }
 
   handleConfirm() {
-    this.router.navigate(['/checkout']);
+    if (!this.selectedDoctor || !this.selectedTime) return;
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const appointment: Appointment = {
+      doctorId: this.selectedDoctor.id,
+      doctorName: this.selectedDoctor.name,
+      specialization: this.selectedDoctor.specialty,
+      dateTime: `${this.selectedDate}T${this.convertTo24Hour(this.selectedTime)}:00`,
+      status: 'PENDING',
+      type: this.consultType.toUpperCase() === 'VIDEO' ? 'VIDEO' : 'IN_PERSON',
+      reason: 'General consultation'
+    };
+
+    this.patientService.bookAppointment(appointment).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/patient/appointments']);
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to book appointment. Please try again.';
+        this.loading = false;
+      }
+    });
+  }
+
+  private convertTo24Hour(time12h: string): string {
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+    if (hours === '12') hours = '00';
+    if (modifier === 'PM') hours = String(parseInt(hours, 10) + 12);
+    return `${hours.padStart(2, '0')}:${minutes}`;
   }
 
   progressWidth(): string {

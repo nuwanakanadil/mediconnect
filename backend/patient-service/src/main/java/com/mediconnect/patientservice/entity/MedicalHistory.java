@@ -20,6 +20,7 @@ public class MedicalHistory {
     private String patientId;
     private String conditionName;
     private LocalDate diagnosisDate;
+    private String treatment;
     private String notes;
     private String status;
 }

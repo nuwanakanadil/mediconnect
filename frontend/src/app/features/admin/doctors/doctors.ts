@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   SearchIcon,
   ShieldCheckIcon,
   StethoscopeIcon,
+  AlertTriangleIcon,
   LucideAngularModule,
 } from 'lucide-angular';
+import { AdminService, Doctor } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-doctors',
@@ -14,14 +16,44 @@ import {
   templateUrl: './doctors.html',
   styleUrl: './doctors.css',
 })
-export class DoctorsComponent {
+export class DoctorsComponent implements OnInit {
   readonly SearchIcon = SearchIcon;
   readonly ShieldCheckIcon = ShieldCheckIcon;
   readonly StethoscopeIcon = StethoscopeIcon;
+  readonly AlertTriangleIcon = AlertTriangleIcon;
 
-  doctors = [
-    { name: 'Dr. Sarah Smith', specialty: 'Cardiology', hospital: 'Metro General Hospital', status: 'verified' },
-    { name: 'Dr. Michael Chen', specialty: 'Neurology', hospital: 'City Medical Center', status: 'verified' },
-    { name: 'Dr. Lisa Patel', specialty: 'Dermatology', hospital: 'Skin Health Institute', status: 'pending' },
-  ];
+  doctors: Doctor[] = [];
+  loading = true;
+  errorMessage = '';
+
+  constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    this.loadDoctors();
+  }
+
+  loadDoctors(): void {
+    this.loading = true;
+    this.adminService.getDoctors().subscribe({
+      next: (data) => {
+        this.doctors = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load doctors.';
+        this.loading = false;
+      }
+    });
+  }
+
+  verifyDoctor(id: string, status: string): void {
+    this.adminService.verifyDoctor(id, status).subscribe({
+      next: (updatedDoctor) => {
+        this.doctors = this.doctors.map(d => d.id === id ? updatedDoctor : d);
+      },
+      error: (err) => {
+        this.errorMessage = 'Verification failed.';
+      }
+    });
+  }
 }

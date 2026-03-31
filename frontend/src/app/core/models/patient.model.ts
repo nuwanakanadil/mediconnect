@@ -44,3 +44,15 @@ export interface Prescription {
   notes: string;
   status: string;
 }
+
+export interface Appointment {
+  id?: string;
+  patientId?: string;
+  doctorId: string;
+  doctorName: string;
+  specialization: string;
+  dateTime: string;
+  status: string;
+  type: string;
+  reason: string;
+}

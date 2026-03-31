@@ -254,6 +254,11 @@
     </div>
 
     <div *ngIf="step === 4" class="animate-fade-in max-w-2xl mx-auto">
+      <div *ngIf="errorMessage" class="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-center gap-3">
+        <lucide-icon [img]="CheckCircle2Icon" class="h-5 w-5 rotate-45"></lucide-icon>
+        {{ errorMessage }}
+      </div>
+
       <h2 class="text-xl font-bold text-slate-900 mb-6 text-center">
         Confirm Booking Details
       </h2>
@@ -331,10 +336,12 @@
       <button
         type="button"
         (click)="handleConfirm()"
-        class="bg-medical-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2"
+        [disabled]="loading"
+        class="bg-medical-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
       >
-        <lucide-icon [img]="CreditCardIcon" class="h-4 w-4"></lucide-icon>
-        Confirm & Pay
+        <span *ngIf="loading" class="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></span>
+        <lucide-icon *ngIf="!loading" [img]="CreditCardIcon" class="h-4 w-4"></lucide-icon>
+        {{ loading ? 'Processing...' : 'Confirm & Pay' }}
       </button>
     </ng-template>
   </div>

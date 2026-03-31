@@ -12,28 +12,65 @@
       </div>
     </div>
 
-    <div class="divide-y divide-slate-100">
+    <div *ngIf="loading" class="p-12 text-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-600 mx-auto"></div>
+      <p class="text-slate-500 text-sm mt-4">Loading doctors...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="p-6">
+      <div class="bg-rose-50 text-rose-700 p-4 rounded-xl border border-rose-100 flex items-center gap-3">
+        <lucide-icon [img]="AlertTriangleIcon" class="h-5 w-5"></lucide-icon>
+        <p class="text-sm font-medium">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage" class="divide-y divide-slate-100">
       <div *ngFor="let d of doctors" class="p-6 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
         <div class="flex items-center gap-4">
           <div class="h-12 w-12 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
             <lucide-icon [img]="StethoscopeIcon" class="h-5 w-5"></lucide-icon>
           </div>
           <div>
-            <h3 class="font-bold text-slate-900">{{ d.name }}</h3>
-            <p class="text-sm text-slate-500">{{ d.specialty }} • {{ d.hospital }}</p>
+            <h3 class="font-bold text-slate-900">{{ d.fullName }}</h3>
+            <p class="text-sm text-slate-500">{{ d.specialization }} • {{ d.hospital }}</p>
           </div>
         </div>
 
         <div class="flex items-center gap-3">
           <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-            [ngClass]="d.status === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'">
+            [ngClass]="{
+              'bg-emerald-100 text-emerald-700': d.status === 'VERIFIED',
+              'bg-amber-100 text-amber-700': d.status === 'PENDING',
+              'bg-rose-100 text-rose-700': d.status === 'REJECTED'
+            }">
             <lucide-icon [img]="ShieldCheckIcon" class="h-3 w-3"></lucide-icon>
-            {{ d.status }}
+            {{ d.status.toLowerCase() }}
           </span>
-          <button class="border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
-            View
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              *ngIf="d.status === 'PENDING'"
+              (click)="verifyDoctor(d.id, 'VERIFIED')"
+              class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700 transition-colors"
+            >
+              Approve
+            </button>
+            <button
+              *ngIf="d.status === 'PENDING'"
+              (click)="verifyDoctor(d.id, 'REJECTED')"
+              class="border border-rose-200 text-rose-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-rose-50 transition-colors"
+            >
+              Reject
+            </button>
+            <button class="border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-50 transition-colors">
+              View
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div *ngIf="doctors.length === 0" class="p-12 text-center">
+        <lucide-icon [img]="StethoscopeIcon" class="h-10 w-10 text-slate-300 mx-auto mb-4"></lucide-icon>
+        <p class="text-slate-500 font-medium">No doctors found.</p>
       </div>
     </div>
   </div>

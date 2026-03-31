@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Patient, MedicalReport, MedicalHistory, Prescription } from '../models/patient.model';
+import { Patient, MedicalReport, MedicalHistory, Prescription, Appointment } from '../models/patient.model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,5 +56,13 @@ export class PatientService {
 
   getPrescriptions(): Observable<Prescription[]> {
     return this.http.get<Prescription[]>(`${this.apiUrl}/me/prescriptions`);
+  }
+
+  getAppointments(): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.apiUrl}/me/appointments`);
+  }
+
+  bookAppointment(data: Appointment): Observable<Appointment> {
+    return this.http.post<Appointment>(`${this.apiUrl}/me/appointments/book`, data);
   }
 }

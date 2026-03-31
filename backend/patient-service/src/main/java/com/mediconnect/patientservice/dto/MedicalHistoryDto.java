@@ -1,26 +1,22 @@
 package com.mediconnect.patientservice.dto;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class MedicalHistoryDto {
     private String id;
     private String patientId;
-
-    @NotBlank(message = "Condition name is required")
     private String conditionName;
-
-    @NotNull(message = "Diagnosis date is required")
     private LocalDate diagnosisDate;
-
+    private String treatment;
     private String notes;
-
-    @NotBlank(message = "Status is required")
     private String status;
 }

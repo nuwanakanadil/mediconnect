@@ -69,8 +69,18 @@
       </div>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-slate-600">
+    <div class="overflow-x-auto min-h-[400px] relative">
+      <div *ngIf="loading" class="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center z-10">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-medical-600"></div>
+      </div>
+
+      <div *ngIf="errorMessage" class="p-6 text-center">
+        <div class="bg-rose-50 text-rose-700 p-4 rounded-xl border border-rose-100 inline-block">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <table *ngIf="!loading && !errorMessage" class="w-full text-left text-sm text-slate-600">
         <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
           <tr>
             <th class="px-6 py-4">Doctor Info</th>
@@ -90,25 +100,25 @@
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-sm border border-medical-200">
-                    {{ getDoctorInitials(apt.doctor) }}
+                    {{ getDoctorInitials(apt.doctorName) }}
                   </div>
 
                   <div>
-                    <p class="font-bold text-slate-900">{{ apt.doctor }}</p>
-                    <p class="text-xs text-slate-500">{{ apt.specialty }}</p>
+                    <p class="font-bold text-slate-900">{{ apt.doctorName }}</p>
+                    <p class="text-xs text-slate-500">{{ apt.specialization }}</p>
                   </div>
                 </div>
               </td>
 
               <td class="px-6 py-4">
-                <p class="font-medium text-slate-900">{{ apt.date }}</p>
-                <p class="text-xs text-slate-500">{{ apt.time }}</p>
+                <p class="font-medium text-slate-900">{{ formatDate(apt.dateTime) }}</p>
+                <p class="text-xs text-slate-500">{{ formatTime(apt.dateTime) }}</p>
               </td>
 
               <td class="px-6 py-4">
                 <div class="flex items-center gap-1.5 text-slate-700">
                   <lucide-icon
-                    *ngIf="apt.type === 'Video Consult'; else inPersonIcon"
+                    *ngIf="apt.type === 'VIDEO'; else inPersonIcon"
                     [img]="VideoIcon"
                     class="h-4 w-4 text-medical-500"
                   ></lucide-icon>
@@ -120,7 +130,7 @@
                     ></lucide-icon>
                   </ng-template>
 
-                  <span class="font-medium">{{ apt.type }}</span>
+                  <span class="font-medium">{{ apt.type === 'VIDEO' ? 'Video Consult' : 'In-Person' }}</span>
                 </div>
               </td>
 
@@ -131,7 +141,7 @@
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <a
-                    *ngIf="apt.type === 'Video Consult' && apt.status === 'confirmed'"
+                    *ngIf="apt.type === 'VIDEO' && (apt.status === 'CONFIRMED' || apt.status === 'PENDING' || apt.status === 'APPROVED')"
                     routerLink="/telemedicine"
                     class="px-3 py-1.5 bg-medical-50 text-medical-700 font-medium rounded-lg hover:bg-medical-100 transition-colors text-xs"
                   >
