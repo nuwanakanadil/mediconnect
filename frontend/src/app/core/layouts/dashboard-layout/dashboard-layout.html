@@ -31,7 +31,7 @@
 
       <nav class="space-y-1">
         <a
-          *ngFor="let item of navItems"
+          *ngFor="let item of currentNavItems"
           [routerLink]="item.path"
           (click)="closeMobileSidebar()"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"

@@ -1,0 +1,23 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.mediconnect:patient-service >-------------------
+[INFO] Building patient-service 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.0:clean (default-clean) @ patient-service ---
+[INFO] Deleting C:\Users\Tharaka\Documents\GitHub\mediconnect\backend\patient-service\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ patient-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ patient-service ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 42 source files with javac [debug release 17] to target\classes
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.605 s
+[INFO] Finished at: 2026-04-01T02:18:37+05:30
+[INFO] ------------------------------------------------------------------------

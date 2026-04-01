@@ -25,18 +25,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            String url = request.getRequestURL().toString();
+            String method = request.getMethod();
+            System.out.println("FILTER DEBUG: Processing " + method + " " + url);
+
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String email = jwtUtils.getEmailFromJwtToken(jwt);
+                System.out.println("FILTER DEBUG: Valid JWT for user: " + email);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         email, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_PATIENT")));
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (jwt != null) {
+                System.out.println("FILTER DEBUG: Invalid JWT provided");
             }
         } catch (Exception e) {
-            // Log error
+            System.out.println("FILTER DEBUG: Exception in filter: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

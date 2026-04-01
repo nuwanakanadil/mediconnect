@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.nio.file.*;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +56,23 @@ public class MedicalReportService {
         return medicalReportMapper.toDto(medicalReportRepository.save(report));
     }
 
+    public MedicalReportDto saveReportMetadata(String patientId, MedicalReportDto dto) {
+        System.out.println("DEBUG: Saving metadata for patient " + patientId);
+        MedicalReport report = MedicalReport.builder()
+                .patientId(patientId)
+                .fileName(dto.getFileName())
+                .originalFileName(dto.getOriginalFileName())
+                .fileType(dto.getFileType())
+                .fileUrl(dto.getFileUrl())
+                .description(dto.getDescription())
+                .uploadedAt(LocalDateTime.now())
+                .build();
+        
+        MedicalReport saved = medicalReportRepository.save(report);
+        System.out.println("DEBUG: Saved report with ID: " + saved.getId());
+        return medicalReportMapper.toDto(saved);
+    }
+
     public MedicalReportDto getReportById(String id) {
         return medicalReportRepository.findById(id)
                 .map(medicalReportMapper::toDto)
@@ -65,10 +83,12 @@ public class MedicalReportService {
         MedicalReport report = medicalReportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report not found"));
         
-        try {
-            Files.deleteIfExists(Paths.get(report.getFilePath()));
-        } catch (IOException e) {
-            // Log warning or handle appropriately
+        if (report.getFilePath() != null) {
+            try {
+                Files.deleteIfExists(Paths.get(report.getFilePath()));
+            } catch (IOException e) {
+                System.err.println("Warning: Could not delete local file: " + report.getFilePath());
+            }
         }
         
         medicalReportRepository.delete(report);

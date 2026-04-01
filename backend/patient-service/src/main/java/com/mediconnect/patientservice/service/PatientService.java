@@ -69,6 +69,7 @@ public class PatientService {
     }
 
     public PatientDto getProfile(String email) {
+        System.out.println("Service: Retrieving profile for email: " + email);
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         return patientMapper.toDto(patient);
@@ -77,10 +78,13 @@ public class PatientService {
     public PatientDto updateProfile(String email, PatientDto dto) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
-        patient.setFullName(dto.getFullName());
-        patient.setPhone(dto.getPhone());
-        patient.setAddress(dto.getAddress());
-        patient.setBloodGroup(dto.getBloodGroup());
-        return patientMapper.toDto(patientRepository.save(patient));
+        
+        patientMapper.updateEntityFromDto(dto, patient);
+        
+        System.out.println("Updating profile for patient ID: " + patient.getId());
+        Patient updatedPatient = patientRepository.save(patient);
+        System.out.println("Profile updated successfully for ID: " + updatedPatient.getId());
+        
+        return patientMapper.toDto(updatedPatient);
     }
 }

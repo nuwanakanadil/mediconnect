@@ -19,11 +19,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> handleRuntimeExceptions(RuntimeException ex) {
-        System.out.println("RuntimeException caught: " + ex.getMessage());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {
+        System.err.println("Exception caught: " + ex.getClass().getName() + ": " + ex.getMessage());
+        ex.printStackTrace();
         Map<String, String> error = new HashMap<>();
-        error.put("message", ex.getMessage());
-        return ResponseEntity.status(400).body(error);
+        error.put("message", ex.getMessage() != null ? ex.getMessage() : "Internal Server Error (" + ex.getClass().getSimpleName() + ")");
+        return ResponseEntity.status(500).body(error);
     }
 }

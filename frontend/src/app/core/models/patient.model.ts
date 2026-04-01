@@ -1,5 +1,5 @@
 export interface Patient {
-  id: number;
+  id: string;
   fullName: string;
   email: string;
   phone: string;
@@ -15,18 +15,19 @@ export interface Patient {
 }
 
 export interface MedicalReport {
-  id: number;
-  patientId: number;
+  id: string;
+  patientId: string;
   fileName: string;
   originalFileName: string;
   fileType: string;
+  fileUrl?: string;
   description: string;
   uploadedAt: string;
 }
 
 export interface MedicalHistory {
-  id?: number;
-  patientId?: number;
+  id?: string;
+  patientId?: string;
   conditionName: string;
   diagnosisDate: string;
   treatment?: string;

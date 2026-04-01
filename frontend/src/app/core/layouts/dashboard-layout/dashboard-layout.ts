@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import {
   ActivityIcon,
   BarChart3Icon,
@@ -28,7 +28,7 @@ type Role = 'patient' | 'doctor' | 'admin';
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule],
+  imports: [CommonModule, RouterLink, RouterOutlet, LucideAngularModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
 })
@@ -55,16 +55,26 @@ export class DashboardLayoutComponent {
   role: Role = 'patient';
   isMobileSidebarOpen = false;
 
+  userData: any;
+  currentNavItems: any[] = [];
+  cachedInitials: string = '';
+  cachedDisplayName: string = '';
+
   constructor(
     private route: ActivatedRoute,
     public router: Router
   ) {
     this.route.data.subscribe((data) => {
-      this.role = (data['role'] ?? 'patient') as Role;
+      const newRole = (data['role'] ?? 'patient') as Role;
+      if (this.role !== newRole || this.currentNavItems.length === 0) {
+        this.role = newRole;
+        this.updateNavItems();
+      }
     });
+    this.loadUserData();
   }
 
-  get navItems() {
+  updateNavItems() {
     const navigationConfig = {
       patient: [
         { name: 'Dashboard', path: '/patient/dashboard', icon: this.LayoutDashboardIcon },
@@ -96,8 +106,36 @@ export class DashboardLayoutComponent {
         { name: 'Settings', path: '/admin/settings', icon: this.SettingsIcon },
       ],
     };
+    this.currentNavItems = navigationConfig[this.role] ?? [];
+  }
 
-    return navigationConfig[this.role] ?? [];
+  loadUserData() {
+    const user = localStorage.getItem('user');
+    if (user) {
+      this.userData = JSON.parse(user);
+      this.updateCachedProfileInfo();
+    }
+  }
+
+  updateCachedProfileInfo() {
+    if (this.userData?.fullName) {
+      this.cachedDisplayName = this.userData.fullName;
+      this.cachedInitials = this.userData.fullName
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    } else {
+      const defaultInfo = {
+        patient: { name: 'Patient User', init: 'PT' },
+        doctor: { name: 'Doctor User', init: 'DR' },
+        admin: { name: 'Admin User', init: 'AD' }
+      };
+      const info = defaultInfo[this.role] || defaultInfo.patient;
+      this.cachedDisplayName = info.name;
+      this.cachedInitials = info.init;
+    }
   }
 
   isActive(path: string) {
@@ -117,14 +155,10 @@ export class DashboardLayoutComponent {
   }
 
   get displayName() {
-    if (this.role === 'patient') return 'Alex Johnson';
-    if (this.role === 'doctor') return 'Dr. Sarah Smith';
-    return 'Admin User';
+    return this.cachedDisplayName;
   }
 
   get initials() {
-    if (this.role === 'patient') return 'AJ';
-    if (this.role === 'doctor') return 'SS';
-    return 'AU';
+    return this.cachedInitials;
   }
 }

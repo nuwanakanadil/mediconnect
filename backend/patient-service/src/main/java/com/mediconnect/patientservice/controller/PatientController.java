@@ -30,6 +30,7 @@ public class PatientController {
 
     @GetMapping("/me")
     public ResponseEntity<PatientDto> getMyProfile(@AuthenticationPrincipal String email) {
+        System.out.println("GET /me called for email: " + email);
         return ResponseEntity.ok(patientService.getProfile(email));
     }
 

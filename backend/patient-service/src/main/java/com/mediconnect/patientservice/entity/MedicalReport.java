@@ -23,6 +23,7 @@ public class MedicalReport {
     private String originalFileName;
     private String fileType;
     private String filePath;
+    private String fileUrl;
     private String description;
 
     @CreatedDate

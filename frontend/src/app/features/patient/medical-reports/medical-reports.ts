@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import {
   DownloadIcon,
   EyeIcon,
@@ -11,7 +11,10 @@ import {
   UploadCloudIcon,
   LucideAngularModule,
 } from 'lucide-angular';
+import { finalize } from 'rxjs';
+
 import { PatientService } from '../../../core/services/patient.service';
+import { SupabaseService } from '../../../core/services/supabase.service';
 import { MedicalReport } from '../../../core/models/patient.model';
 
 @Component({
@@ -36,7 +39,12 @@ export class MedicalReportsComponent implements OnInit {
   uploading = false;
   errorMessage = '';
 
-  constructor(private patientService: PatientService) {}
+  constructor(
+    private patientService: PatientService,
+    private supabaseService: SupabaseService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
   ngOnInit(): void {
     this.loadReports();
@@ -44,47 +52,125 @@ export class MedicalReportsComponent implements OnInit {
 
   loadReports(): void {
     this.loading = true;
-    this.patientService.getReports().subscribe({
-      next: (data) => {
-        this.reports = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to load reports.';
-        this.loading = false;
-      }
-    });
+    this.errorMessage = '';
+
+    this.patientService
+      .getReports()
+      .pipe(
+        finalize(() => {
+          this.ngZone.run(() => {
+            this.loading = false;
+            this.cdr.detectChanges();
+          });
+        })
+      )
+      .subscribe({
+        next: (data: MedicalReport[]) => {
+          this.ngZone.run(() => {
+            this.reports = data || [];
+            this.cdr.detectChanges();
+          });
+        },
+        error: (err: any) => {
+          console.error('Failed to load reports:', err);
+
+          this.ngZone.run(() => {
+            this.errorMessage = 'Failed to load reports.';
+            this.reports = [];
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
-  handleFileUpload(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
+  async handleFileUpload(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    this.ngZone.run(() => {
       this.uploading = true;
-      const description = 'Uploaded by patient';
-      this.patientService.uploadReport(file, description).subscribe({
-        next: (report) => {
-          this.reports.unshift(report);
-          this.uploading = false;
-        },
-        error: (err) => {
-          this.errorMessage = 'Upload failed. Please try again.';
-          this.uploading = false;
-        }
+      this.errorMessage = '';
+      this.cdr.detectChanges();
+    });
+
+    try {
+      console.log('Uploading file to Supabase...');
+      const publicUrl = await this.supabaseService.uploadFile(file);
+      console.log('File uploaded to Supabase:', publicUrl);
+
+      const metadata = {
+        fileName: file.name,
+        originalFileName: file.name,
+        fileType: file.type,
+        fileUrl: publicUrl,
+        description: 'Uploaded via MediConnect',
+      };
+
+      this.patientService
+        .saveReportMetadata(metadata)
+        .pipe(
+          finalize(() => {
+            this.ngZone.run(() => {
+              this.uploading = false;
+              this.cdr.detectChanges();
+            });
+          })
+        )
+        .subscribe({
+          next: (report: MedicalReport) => {
+            console.log('Metadata saved to backend:', report);
+
+            this.ngZone.run(() => {
+              this.reports = [report, ...this.reports];
+              input.value = '';
+              this.cdr.detectChanges();
+            });
+          },
+          error: (err: any) => {
+            console.error('Failed to save metadata:', err);
+
+            this.ngZone.run(() => {
+              this.errorMessage = 'Failed to record report in system.';
+              this.cdr.detectChanges();
+            });
+          },
+        });
+    } catch (error: any) {
+      console.error('Supabase upload error:', error);
+
+      this.ngZone.run(() => {
+        this.errorMessage = 'Failed to upload file to storage.';
+        this.uploading = false;
+        this.cdr.detectChanges();
       });
     }
   }
 
-  deleteReport(id: number): void {
-    if (confirm('Are you sure you want to delete this report?')) {
-      this.patientService.deleteReport(id).subscribe({
-        next: () => {
-          this.reports = this.reports.filter(r => r.id !== id);
-        },
-        error: (err) => {
+  deleteReport(id: string): void {
+    if (!confirm('Are you sure you want to delete this report?')) return;
+
+    this.errorMessage = '';
+
+    this.patientService.deleteReport(id).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.reports = this.reports.filter(
+            (report) => report.id.toString() !== id.toString()
+          );
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err: any) => {
+        console.error('Delete failed:', err);
+
+        this.ngZone.run(() => {
           this.errorMessage = 'Delete failed.';
-        }
-      });
-    }
+          this.cdr.detectChanges();
+        });
+      },
+    });
   }
 
   isPdf(name: string): boolean {
@@ -92,6 +178,7 @@ export class MedicalReportsComponent implements OnInit {
   }
 
   formatDate(dateStr: string): string {
+    if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString();
   }
 }

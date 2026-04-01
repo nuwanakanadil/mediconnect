@@ -17,6 +17,7 @@ public class MedicalReportDto {
     private String fileName;
     private String originalFileName;
     private String fileType;
+    private String fileUrl;
     private String description;
     private LocalDateTime uploadedAt;
 }

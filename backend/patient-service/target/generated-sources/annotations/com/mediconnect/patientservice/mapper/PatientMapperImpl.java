@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-01T01:13:23+0530",
+    date = "2026-04-01T04:06:16+0530",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
@@ -53,5 +53,22 @@ public class PatientMapperImpl implements PatientMapper {
         patient.phone( registerRequest.getPhone() );
 
         return patient.build();
+    }
+
+    @Override
+    public void updateEntityFromDto(PatientDto dto, Patient patient) {
+        if ( dto == null ) {
+            return;
+        }
+
+        patient.setFullName( dto.getFullName() );
+        patient.setPhone( dto.getPhone() );
+        patient.setDateOfBirth( dto.getDateOfBirth() );
+        patient.setGender( dto.getGender() );
+        patient.setAddress( dto.getAddress() );
+        patient.setBloodGroup( dto.getBloodGroup() );
+        patient.setEmergencyContactName( dto.getEmergencyContactName() );
+        patient.setEmergencyContactPhone( dto.getEmergencyContactPhone() );
+        patient.setProfileImageUrl( dto.getProfileImageUrl() );
     }
 }

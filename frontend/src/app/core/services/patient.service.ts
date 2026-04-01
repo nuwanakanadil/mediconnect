@@ -34,7 +34,11 @@ export class PatientService {
     return this.http.post<MedicalReport>(`${this.apiUrl}/me/reports`, formData);
   }
 
-  deleteReport(id: number): Observable<void> {
+  saveReportMetadata(metadata: any): Observable<MedicalReport> {
+    return this.http.post<MedicalReport>(`${this.apiUrl}/me/reports/metadata`, metadata);
+  }
+
+  deleteReport(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/me/reports/${id}`);
   }
 
@@ -46,11 +50,11 @@ export class PatientService {
     return this.http.post<MedicalHistory>(`${this.apiUrl}/me/history`, data);
   }
 
-  updateHistory(id: number, data: MedicalHistory): Observable<MedicalHistory> {
+  updateHistory(id: string, data: MedicalHistory): Observable<MedicalHistory> {
     return this.http.put<MedicalHistory>(`${this.apiUrl}/me/history/${id}`, data);
   }
 
-  deleteHistory(id: number): Observable<void> {
+  deleteHistory(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/me/history/${id}`);
   }
 
@@ -64,5 +68,9 @@ export class PatientService {
 
   bookAppointment(data: Appointment): Observable<Appointment> {
     return this.http.post<Appointment>(`${this.apiUrl}/me/appointments/book`, data);
+  }
+
+  getDoctorsBySpecialty(specialty: string): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8081/api/doctors/search?specialization=${specialty}`);
   }
 }

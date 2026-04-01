@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface DoctorRepository extends MongoRepository<Doctor, String> {
     List<Doctor> findByStatus(String status);
+    List<Doctor> findBySpecializationAndStatus(String specialization, String status);
 }
