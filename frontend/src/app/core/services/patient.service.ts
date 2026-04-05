@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Patient, MedicalReport, MedicalHistory, Prescription, Appointment, Payment } from '../models/patient.model';
+import { Patient, MedicalReport, MedicalHistory, Prescription, Appointment, Payment, Dependent } from '../models/patient.model';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +72,22 @@ export class PatientService {
 
   getPayments(): Observable<Payment[]> {
     return this.http.get<Payment[]>(`${this.apiUrl}/me/payments`);
+  }
+
+  getDependents(): Observable<Dependent[]> {
+    return this.http.get<Dependent[]>(`${this.apiUrl}/me/dependents`);
+  }
+
+  addDependent(dependent: Dependent): Observable<Dependent> {
+    return this.http.post<Dependent>(`${this.apiUrl}/me/dependents`, dependent);
+  }
+
+  updateDependent(id: string, dependent: Dependent): Observable<Dependent> {
+    return this.http.put<Dependent>(`${this.apiUrl}/me/dependents/${id}`, dependent);
+  }
+
+  deleteDependent(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/me/dependents/${id}`);
   }
 
   getDoctorsBySpecialty(specialty: string): Observable<any[]> {

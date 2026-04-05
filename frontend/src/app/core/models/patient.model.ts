@@ -69,3 +69,14 @@ export interface Payment {
   description: string;
   type: string;
 }
+
+export interface Dependent {
+  id?: string;
+  patientId?: string;
+  name: string;
+  relationship: string;
+  dateOfBirth: string;
+  gender: string;
+  bloodType: string;
+  notes: string;
+}

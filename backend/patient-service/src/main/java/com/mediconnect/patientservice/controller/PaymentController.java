@@ -50,6 +50,12 @@ public class PaymentController {
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         System.err.println("PaymentController Local Exception Handler: " + e.getMessage());
-        return ResponseEntity.status(500).body("Error retrieving payments: " + e.getMessage());
+        String message = "Error: ";
+        if (e.getMessage() != null && (e.getMessage().contains("Timed out") || e.getMessage().contains("connection"))) {
+            message += "Database connectivity issue. Please check Atlas whitelisting and network DNS.";
+        } else {
+            message += "Error retrieving payments: " + e.getMessage();
+        }
+        return ResponseEntity.status(500).body(message);
     }
 }
