@@ -57,3 +57,15 @@ export interface Appointment {
   type: string;
   reason: string;
 }
+
+export interface Payment {
+  id: string;
+  patientId: string;
+  appointmentId: string;
+  doctorName: string;
+  amount: number;
+  date: string;
+  status: string;
+  description: string;
+  type: string;
+}

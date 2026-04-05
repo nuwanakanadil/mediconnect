@@ -9,6 +9,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface PatientMapper {
+    @Mapping(target = "id", source = "id")
     PatientDto toDto(Patient patient);
     
     @Mapping(target = "id", ignore = true)

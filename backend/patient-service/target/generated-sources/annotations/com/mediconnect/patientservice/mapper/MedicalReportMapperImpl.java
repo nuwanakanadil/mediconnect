@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-01T04:06:16+0530",
+    date = "2026-04-05T18:47:15+0530",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
@@ -26,6 +26,7 @@ public class MedicalReportMapperImpl implements MedicalReportMapper {
         medicalReportDto.fileName( medicalReport.getFileName() );
         medicalReportDto.originalFileName( medicalReport.getOriginalFileName() );
         medicalReportDto.fileType( medicalReport.getFileType() );
+        medicalReportDto.fileUrl( medicalReport.getFileUrl() );
         medicalReportDto.description( medicalReport.getDescription() );
         medicalReportDto.uploadedAt( medicalReport.getUploadedAt() );
 
@@ -45,6 +46,7 @@ public class MedicalReportMapperImpl implements MedicalReportMapper {
         medicalReport.fileName( medicalReportDto.getFileName() );
         medicalReport.originalFileName( medicalReportDto.getOriginalFileName() );
         medicalReport.fileType( medicalReportDto.getFileType() );
+        medicalReport.fileUrl( medicalReportDto.getFileUrl() );
         medicalReport.description( medicalReportDto.getDescription() );
 
         return medicalReport.build();

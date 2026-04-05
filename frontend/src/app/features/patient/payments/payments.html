@@ -38,7 +38,21 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-slate-600">
+      <div *ngIf="loading" class="p-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-medical-500 border-t-transparent"></div>
+        <p class="mt-4 text-slate-500">Loading transactions...</p>
+      </div>
+
+      <div *ngIf="!loading && transactions.length === 0" class="p-12 text-center text-slate-500">
+        <lucide-icon [img]="CreditCardIcon" class="h-12 w-12 mx-auto mb-4 opacity-20"></lucide-icon>
+        <p>No transactions found.</p>
+      </div>
+
+      <div *ngIf="error" class="p-4 mx-4 mb-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm">
+        {{ error }}
+      </div>
+
+      <table *ngIf="!loading && transactions.length > 0" class="w-full text-left text-sm text-slate-600">
         <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
           <tr>
             <th class="px-6 py-4">Transaction Details</th>
@@ -65,12 +79,12 @@
                   ></lucide-icon>
                 </div>
                 <div>
-                  <p class="font-medium text-slate-900">{{ txn.desc }}</p>
+                  <p class="font-medium text-slate-900">{{ txn.description }}</p>
                   <p class="text-xs text-slate-500">{{ txn.id }}</p>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 font-medium">{{ txn.date }}</td>
+            <td class="px-6 py-4 font-medium">{{ txn.date | date:'MMM d, y' }}</td>
             <td class="px-6 py-4">
               <span
                 class="font-bold"
@@ -85,6 +99,7 @@
             <td class="px-6 py-4 text-right">
               <button
                 *ngIf="txn.status !== 'pending'"
+                (click)="downloadReceipt(txn)"
                 class="inline-flex items-center gap-1.5 text-medical-600 hover:text-medical-700 font-medium text-xs bg-medical-50 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <lucide-icon [img]="DownloadIcon" class="h-3 w-3"></lucide-icon>

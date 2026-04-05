@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
+    private final PaymentService paymentService;
 
     public List<AppointmentDto> getAppointmentsByPatientId(String patientId) {
         return appointmentRepository.findByPatientId(patientId).stream()
@@ -22,7 +23,21 @@ public class AppointmentService {
     public AppointmentDto bookAppointment(AppointmentDto dto) {
         Appointment appointment = mapToEntity(dto);
         appointment.setStatus("PENDING");
-        return mapToDto(appointmentRepository.save(appointment));
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Record payment
+        paymentService.createPayment(com.mediconnect.patientservice.dto.PaymentDto.builder()
+                .patientId(savedAppointment.getPatientId())
+                .appointmentId(savedAppointment.getId())
+                .doctorName(savedAppointment.getDoctorName())
+                .amount(150.0) // Fixed fee for now
+                .date(java.time.LocalDateTime.now())
+                .status("paid")
+                .description("Consultation - " + savedAppointment.getDoctorName())
+                .type("payment")
+                .build());
+
+        return mapToDto(savedAppointment);
     }
 
     private AppointmentDto mapToDto(Appointment entity) {
