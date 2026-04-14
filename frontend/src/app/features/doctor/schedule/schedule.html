@@ -1,93 +1,73 @@
 <div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-bold text-slate-900">Availability Schedule</h1>
-    <p class="text-slate-500 text-sm mt-1">Manage your weekly working hours and consultation slots.</p>
-  </div>
-
-  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden flex flex-col md:flex-row">
-    <div class="w-full md:w-64 border-r border-slate-100 bg-slate-50/50 p-4">
-      <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 px-2">Working Days</h2>
-      <div class="space-y-1">
-        <button
-          *ngFor="let day of days"
-          (click)="selectedDay = day"
-          class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
-          [ngClass]="selectedDay === day ? 'bg-medical-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'"
-        >
-          {{ day }}
-          <div class="h-2 w-2 rounded-full" [ngClass]="schedule[day].active ? (selectedDay === day ? 'bg-white' : 'bg-emerald-500') : 'bg-slate-300'"></div>
-        </button>
-      </div>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Availability Schedule</h1>
+      <p class="text-slate-500 mt-1">Set your working hours and capacity per day.</p>
     </div>
 
-    <div class="flex-1 p-6 sm:p-8">
-      <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">{{ selectedDay }}</h2>
-          <p class="text-sm text-slate-500">Configure your available time slots for this day.</p>
+    <button (click)="saveSchedule()" class="bg-gradient-to-r from-medical-600 to-medical-500 text-white px-6 py-2.5 rounded-xl font-bold hover:from-medical-700 hover:to-medical-600 transition-all shadow-md flex items-center gap-2 transform hover:-translate-y-0.5">
+      <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
+      Save Schedule
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden lg:flex min-h-[500px]">
+    <!-- left Sidebar: Days Menu -->
+    <div class="w-full lg:w-64 bg-slate-50 border-r border-slate-100 flex flex-col p-4 space-y-2">
+      <button 
+        *ngFor="let day of days" 
+        (click)="selectedDay = day.value"
+        class="flex items-center justify-between w-full px-4 py-3 rounded-xl font-bold transition-all"
+        [ngClass]="selectedDay === day.value ? 'bg-white text-medical-600 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-100/50'"
+      >
+        <span>{{ day.display }}</span>
+        <!-- Optional indicator if they have schedule -->
+        <div *ngIf="false" class="w-2 h-2 rounded-full bg-emerald-400"></div>
+      </button>
+    </div>
+
+    <!-- Right Area: Time Slot Manager -->
+    <div class="flex-1 p-6 sm:p-8 bg-white relative">
+      <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <lucide-icon [img]="CalendarIcon" class="h-5 w-5 text-medical-500"></lucide-icon>
+        {{ selectedDay }} Schedule
+      </h2>
+
+      <div class="space-y-4">
+        <div *ngIf="schedulesForDay.length === 0" class="flex flex-col items-center justify-center py-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">
+          <lucide-icon [img]="CalendarIcon" class="h-12 w-12 mb-3 text-slate-300"></lucide-icon>
+          <p class="font-semibold text-slate-600 text-lg">You are unavailable on {{ selectedDay }}</p>
+          <p class="text-sm">Add a block of working hours below.</p>
         </div>
 
-        <label class="flex items-center cursor-pointer">
-          <div class="relative">
-            <input type="checkbox" class="sr-only" [checked]="schedule[selectedDay].active" />
-            <div class="block bg-slate-200 w-10 h-6 rounded-full"></div>
-            <div class="absolute left-1 top-1 w-4 h-4 rounded-full transition transform bg-white" [ngClass]="schedule[selectedDay].active ? 'translate-x-4 bg-medical-600' : ''"></div>
-          </div>
-          <div class="ml-3 text-sm font-medium text-slate-700">
-            {{ schedule[selectedDay].active ? 'Available' : 'Unavailable' }}
-          </div>
-        </label>
+        <div *ngFor="let slot of schedulesForDay" class="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm animate-in fade-in slide-in-from-bottom-2">
+           <div class="space-y-1 flex-1">
+             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Start Time</label>
+             <input type="time" [(ngModel)]="slot.startTime" class="w-full px-3 py-2 border rounded-lg bg-white" />
+           </div>
+           <div class="flex items-center pt-5 text-slate-400 font-bold self-center">-</div>
+           <div class="space-y-1 flex-1">
+             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">End Time</label>
+             <input type="time" [(ngModel)]="slot.endTime" class="w-full px-3 py-2 border rounded-lg bg-white" />
+           </div>
+           <div class="space-y-1 w-24">
+             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider" title="Max Appointments">Max Pts</label>
+             <input type="number" [(ngModel)]="slot.maxAppointments" class="w-full px-3 py-2 border rounded-lg bg-white" />
+           </div>
+           <div class="pt-5">
+             <button (click)="removeTimeSlot(slot)" class="p-2.5 text-rose-500 hover:bg-rose-100 rounded-lg transition-colors">
+               <lucide-icon [img]="Trash2Icon" class="h-5 w-5"></lucide-icon>
+             </button>
+           </div>
+        </div>
+
+        <div class="pt-4">
+          <button (click)="addTimeSlot()" class="flex items-center gap-2 text-medical-600 font-bold hover:text-medical-700 bg-medical-50 px-4 py-2.5 rounded-xl border border-medical-100 transition-colors">
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon> Add Working Hours
+          </button>
+        </div>
       </div>
-
-      <ng-container *ngIf="schedule[selectedDay].active; else unavailableState">
-        <div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-bold text-slate-900">Active Time Slots</h3>
-            <button class="text-sm text-medical-600 font-medium hover:text-medical-700 flex items-center gap-1">
-              <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
-              Add Slot
-            </button>
-          </div>
-
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
-            <div *ngFor="let time of schedule[selectedDay].slots" class="flex items-center justify-between bg-medical-50 border border-medical-100 px-3 py-2 rounded-lg group">
-              <span class="text-sm font-medium text-medical-900">{{ time }}</span>
-              <button class="text-medical-400 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100">
-                <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
-              </button>
-            </div>
-          </div>
-
-          <h3 class="text-sm font-bold text-slate-900 mb-4 pt-6 border-t border-slate-100">Add Time Slots</h3>
-          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-            <button
-              *ngFor="let time of timeSlots"
-              class="py-2 px-1 rounded-lg text-xs font-medium border transition-colors"
-              [ngClass]="slotSelected(time) ? 'border-medical-500 bg-medical-500 text-white shadow-sm' : 'border-slate-200 text-slate-600 hover:border-medical-300 hover:bg-slate-50'"
-            >
-              {{ time }}
-            </button>
-          </div>
-
-          <div class="mt-8 flex justify-end">
-            <button class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm">
-              Save Schedule
-            </button>
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-template #unavailableState>
-        <div class="text-center py-12">
-          <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <lucide-icon [img]="CalendarIcon" class="h-8 w-8 text-slate-400"></lucide-icon>
-          </div>
-          <h3 class="text-lg font-bold text-slate-900 mb-2">You are unavailable on {{ selectedDay }}s</h3>
-          <p class="text-slate-500 text-sm max-w-sm mx-auto">
-            Toggle the availability switch above to start adding consultation slots.
-          </p>
-        </div>
-      </ng-template>
+      
     </div>
   </div>
 </div>

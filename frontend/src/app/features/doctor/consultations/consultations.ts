@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   CalendarIcon,
@@ -10,6 +10,7 @@ import {
   LucideAngularModule,
 } from 'lucide-angular';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
+import { AppointmentRequestService, AppointmentRequest } from '../../../core/services/appointment.service';
 
 @Component({
   selector: 'app-consultations',
@@ -18,39 +19,77 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
   templateUrl: './consultations.html',
   styleUrl: './consultations.css',
 })
-export class ConsultationsComponent {
+export class ConsultationsComponent implements OnInit {
   readonly SearchIcon = SearchIcon;
   readonly CalendarIcon = CalendarIcon;
   readonly ClockIcon = ClockIcon;
   readonly VideoIcon = VideoIcon;
   readonly FileTextIcon = FileTextIcon;
 
-  consultations = [
-    {
-      patient: 'James Wilson',
-      date: 'Today',
-      time: '10:00 AM',
-      type: 'Video Consult',
-      status: 'completed',
-      reason: 'Routine checkup and chest pain follow-up',
-    },
-    {
-      patient: 'Emily Chen',
-      date: 'Today',
-      time: '02:30 PM',
-      type: 'Video Consult',
-      status: 'in progress',
-      reason: 'Blood pressure review',
-    },
-    {
-      patient: 'Robert Taylor',
-      date: 'Oct 24, 2023',
-      time: '11:15 AM',
-      type: 'In-Person',
-      status: 'pending',
-      reason: 'ECG discussion',
-    },
-  ];
+  doctorId: string | null = null;
+  consultations: AppointmentRequest[] = [];
+  filteredConsultations: AppointmentRequest[] = [];
+  searchTerm = '';
+
+  constructor(private apptService: AppointmentRequestService) {}
+
+  ngOnInit(): void {
+    this.doctorId = localStorage.getItem('doctorId');
+    if (!this.doctorId) {
+      return;
+    }
+
+    this.apptService.getRequestsByDoctorId(this.doctorId).subscribe({
+      next: (data) => {
+        this.consultations = data
+          .filter((c) => c.status === 'ACCEPTED' || c.status === 'COMPLETED')
+          .sort((a, b) => new Date(b.appointmentDateTime).getTime() - new Date(a.appointmentDateTime).getTime());
+        this.applyFilter();
+      },
+      error: (err) => console.error('Failed to load consultations', err)
+    });
+  }
+
+  onSearch(value: string) {
+    this.searchTerm = value.trim().toLowerCase();
+    this.applyFilter();
+  }
+
+  private applyFilter() {
+    if (!this.searchTerm) {
+      this.filteredConsultations = [...this.consultations];
+      return;
+    }
+
+    this.filteredConsultations = this.consultations.filter((c) => {
+      const text = `${c.patientId} ${c.patientNotes || ''} ${c.appointmentId}`.toLowerCase();
+      return text.includes(this.searchTerm);
+    });
+  }
+
+  markCompleted(id: string) {
+    this.apptService.updateRequestStatus(id, 'COMPLETED').subscribe({
+      next: (res) => {
+        this.consultations = this.consultations.map((c) => c.id === id ? { ...c, status: res.status } : c);
+        this.applyFilter();
+      },
+      error: (err) => console.error('Failed to mark consultation completed', err)
+    });
+  }
+
+  getStatusLabel(status: string): string {
+    if (status === 'ACCEPTED') return 'accepted';
+    if (status === 'COMPLETED') return 'completed';
+    return status.toLowerCase();
+  }
+
+  getDisplayDate(dateTime: string): string {
+    return new Date(dateTime).toLocaleDateString();
+  }
+
+  getDisplayTime(dateTime: string): string {
+    return new Date(dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
   initials(name: string) {
     return `${name.split(' ')[0][0]}${name.split(' ')[1]?.[0] || ''}`;
