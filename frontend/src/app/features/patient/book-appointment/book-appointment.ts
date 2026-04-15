@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   SearchIcon,
   MapPinIcon,
@@ -13,16 +13,7 @@ import {
   CreditCardIcon,
   LucideAngularModule,
 } from 'lucide-angular';
-
-interface Doctor {
-  id: number;
-  name: string;
-  specialty: string;
-  hospital: string;
-  rating: number;
-  fee: number;
-  image: string;
-}
+import { DoctorService, Doctor } from '../../../core/services/doctor.service';
 
 @Component({
   selector: 'app-book-appointment',
@@ -31,7 +22,7 @@ interface Doctor {
   templateUrl: './book-appointment.html',
   styleUrl: './book-appointment.css',
 })
-export class BookAppointmentComponent {
+export class BookAppointmentComponent implements OnInit {
   readonly SearchIcon = SearchIcon;
   readonly MapPinIcon = MapPinIcon;
   readonly StarIcon = StarIcon;
@@ -60,28 +51,8 @@ export class BookAppointmentComponent {
     'Ophthalmology',
   ];
 
-  doctors: Doctor[] = [
-    {
-      id: 1,
-      name: 'Dr. Sarah Smith',
-      specialty: 'Cardiology',
-      hospital: 'Metro General Hospital',
-      rating: 4.9,
-      fee: 150,
-      image:
-        'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80',
-    },
-    {
-      id: 2,
-      name: 'Dr. Michael Chen',
-      specialty: 'Cardiology',
-      hospital: 'City Medical Center',
-      rating: 4.8,
-      fee: 200,
-      image:
-        'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80',
-    },
-  ];
+  doctors: Doctor[] = [];
+  preselectedDoctorId = '';
 
   timeSlots = [
     '09:00 AM',
@@ -104,7 +75,37 @@ export class BookAppointmentComponent {
     { num: 4, label: 'Confirm' },
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private doctorService: DoctorService
+  ) {}
+
+  ngOnInit() {
+    this.preselectedDoctorId = this.route.snapshot.queryParamMap.get('doctorId') ?? '';
+
+    this.doctorService.getAllDoctors().subscribe({
+      next: (data) => {
+        // Keep booking list aligned with public listing behavior.
+        this.doctors = data.filter((d) => d.active !== false);
+
+        if (this.preselectedDoctorId) {
+          const matchedDoctor = this.doctors.find((d) => d.id === this.preselectedDoctorId);
+          if (matchedDoctor) {
+            this.selectedDoctor = matchedDoctor;
+            this.selectedSpecialty = matchedDoctor.specialization;
+            this.step = 3;
+          }
+        }
+      },
+      error: (err) => console.error('Failed to load doctors', err)
+    });
+  }
+
+  get filteredDoctors() {
+    if (!this.selectedSpecialty) return this.doctors;
+    return this.doctors.filter(d => d.specialization === this.selectedSpecialty);
+  }
 
   handleNext() {
     this.step = Math.min(this.step + 1, 4);
@@ -129,7 +130,8 @@ export class BookAppointmentComponent {
   }
 
   handleConfirm() {
-    this.router.navigate(['/checkout']);
+    // Ideally this creates a pending AppointmentRequest in the backend
+    this.router.navigate(['/payment/checkout']);
   }
 
   progressWidth(): string {

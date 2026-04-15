@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AppointmentRequestService, AppointmentRequest } from '../../../core/services/appointment.service';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import {
   SearchIcon,
   FilterIcon,
@@ -10,7 +12,6 @@ import {
   XIcon,
   LucideAngularModule,
 } from 'lucide-angular';
-import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 
 type TabType = 'today' | 'upcoming' | 'requests';
 
@@ -21,7 +22,7 @@ type TabType = 'today' | 'upcoming' | 'requests';
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
-export class AppointmentsComponent {
+export class AppointmentsComponent implements OnInit {
   readonly SearchIcon = SearchIcon;
   readonly FilterIcon = FilterIcon;
   readonly VideoIcon = VideoIcon;
@@ -29,30 +30,95 @@ export class AppointmentsComponent {
   readonly CheckIcon = CheckIcon;
   readonly XIcon = XIcon;
 
-  activeTab: TabType = 'today';
+  activeTab: TabType = 'requests'; // Default to requests so the doctor sees pending
 
-  appointments = [
-    { id: 'APT-1001', patient: 'James Wilson', age: 45, date: 'Today', time: '10:00 AM', type: 'Video Consult', status: 'confirmed' },
-    { id: 'APT-1002', patient: 'Emily Chen', age: 28, date: 'Today', time: '02:30 PM', type: 'In-Person', status: 'pending' },
-    { id: 'APT-1003', patient: 'Robert Taylor', age: 62, date: 'Tomorrow', time: '11:15 AM', type: 'In-Person', status: 'confirmed' },
-    { id: 'APT-0998', patient: 'Lisa Patel', age: 34, date: 'Oct 26, 2023', time: '09:00 AM', type: 'Video Consult', status: 'pending' },
-    { id: 'APT-0985', patient: 'David Miller', age: 51, date: 'Oct 28, 2023', time: '04:00 PM', type: 'Video Consult', status: 'confirmed' },
-  ];
+  doctorId: string | null = null;
+  appointments: AppointmentRequest[] = [];
+  searchTerm = '';
+
+  constructor(private apptService: AppointmentRequestService) {}
+
+  ngOnInit() {
+    this.doctorId = localStorage.getItem('doctorId');
+    if (this.doctorId) {
+      this.loadAppointments();
+    }
+  }
+
+  loadAppointments() {
+    this.apptService.getRequestsByDoctorId(this.doctorId!).subscribe({
+      next: (data) => {
+        this.appointments = data;
+      },
+      error: (err) => {
+        console.warn('Backend not available or no appointments.', err);
+      }
+    });
+  }
+
+  updateStatus(id: string, newStatus: string) {
+    this.apptService.updateRequestStatus(id, newStatus).subscribe({
+      next: (res) => {
+        // Update local list
+        const index = this.appointments.findIndex(a => a.id === id);
+        if (index !== -1) {
+          this.appointments[index].status = res.status;
+        }
+      },
+      error: (err) => alert('Failed to update status')
+    });
+  }
 
   setActiveTab(tab: TabType) {
     this.activeTab = tab;
   }
 
+  onSearch(value: string) {
+    this.searchTerm = value.trim().toLowerCase();
+  }
+
+  private isToday(dateTime: string): boolean {
+    const target = new Date(dateTime);
+    const now = new Date();
+    return target.getFullYear() === now.getFullYear()
+      && target.getMonth() === now.getMonth()
+      && target.getDate() === now.getDate();
+  }
+
+  private isUpcoming(dateTime: string): boolean {
+    const target = new Date(dateTime);
+    return target.getTime() > Date.now();
+  }
+
   get filteredAppointments() {
     return this.appointments.filter((apt) => {
-      if (this.activeTab === 'today') return apt.date === 'Today';
-      if (this.activeTab === 'upcoming') return apt.date !== 'Today' && apt.status === 'confirmed';
-      if (this.activeTab === 'requests') return apt.status === 'pending';
-      return true;
+      if (this.activeTab === 'today' && !(apt.status === 'ACCEPTED' && this.isToday(apt.appointmentDateTime))) {
+        return false;
+      }
+
+      if (this.activeTab === 'upcoming' && !(apt.status === 'ACCEPTED' && this.isUpcoming(apt.appointmentDateTime))) {
+        return false;
+      }
+
+      if (this.activeTab === 'requests' && apt.status !== 'PENDING') {
+        return false;
+      }
+
+      if (!this.searchTerm) {
+        return true;
+      }
+
+      const haystack = `${apt.patientId} ${apt.appointmentId} ${apt.patientNotes || ''}`.toLowerCase();
+      return haystack.includes(this.searchTerm);
     });
   }
 
-  initials(name: string) {
-    return `${name.split(' ')[0][0]}${name.split(' ')[1]?.[0] || ''}`;
+  get pendingCount() {
+    return this.appointments.filter(a => a.status === 'PENDING').length;
+  }
+
+  initials(name?: string) {
+    if (!name) return 'PT';
+    return `${name.split(' ')[0][0]}${name.split(' ')[1]?.[0] || ''}`.toUpperCase();
   }
 }

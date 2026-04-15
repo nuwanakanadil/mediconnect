@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { DoctorService, Doctor } from '../../../core/services/doctor.service';
 import {
   SearchIcon,
   ShieldCheckIcon,
@@ -14,14 +15,23 @@ import {
   templateUrl: './doctors.html',
   styleUrl: './doctors.css',
 })
-export class DoctorsComponent {
+export class DoctorsComponent implements OnInit {
   readonly SearchIcon = SearchIcon;
   readonly ShieldCheckIcon = ShieldCheckIcon;
   readonly StethoscopeIcon = StethoscopeIcon;
 
-  doctors = [
-    { name: 'Dr. Sarah Smith', specialty: 'Cardiology', hospital: 'Metro General Hospital', status: 'verified' },
-    { name: 'Dr. Michael Chen', specialty: 'Neurology', hospital: 'City Medical Center', status: 'verified' },
-    { name: 'Dr. Lisa Patel', specialty: 'Dermatology', hospital: 'Skin Health Institute', status: 'pending' },
-  ];
+  doctors: Doctor[] = [];
+
+  constructor(private doctorService: DoctorService) {}
+
+  ngOnInit() {
+    this.doctorService.getAllDoctors().subscribe({
+      next: (data) => {
+        this.doctors = data;
+      },
+      error: (err) => {
+        console.error('Failed to load doctors in admin panel', err);
+      }
+    });
+  }
 }

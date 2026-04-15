@@ -113,18 +113,38 @@ export class DashboardLayoutComponent {
   }
 
   logout() {
+    localStorage.removeItem('role');
+    localStorage.removeItem('doctorId');
+    localStorage.removeItem('doctorFirstName');
+    localStorage.removeItem('doctorLastName');
     this.router.navigate(['/login']);
   }
 
   get displayName() {
     if (this.role === 'patient') return 'Alex Johnson';
-    if (this.role === 'doctor') return 'Dr. Sarah Smith';
+    if (this.role === 'doctor') {
+      const firstName = (localStorage.getItem('doctorFirstName') || '').trim();
+      const lastName = (localStorage.getItem('doctorLastName') || '').trim();
+
+      if (firstName || lastName) {
+        return `Dr. ${firstName} ${lastName}`.trim();
+      }
+
+      return 'Doctor';
+    }
     return 'Admin User';
   }
 
   get initials() {
     if (this.role === 'patient') return 'AJ';
-    if (this.role === 'doctor') return 'SS';
+    if (this.role === 'doctor') {
+      const firstName = (localStorage.getItem('doctorFirstName') || '').trim();
+      const lastName = (localStorage.getItem('doctorLastName') || '').trim();
+
+      const first = firstName ? firstName.charAt(0).toUpperCase() : 'D';
+      const second = lastName ? lastName.charAt(0).toUpperCase() : 'R';
+      return `${first}${second}`;
+    }
     return 'AU';
   }
 }
