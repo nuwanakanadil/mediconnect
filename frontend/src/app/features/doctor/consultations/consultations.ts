@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   CalendarIcon,
   ClockIcon,
@@ -31,7 +31,10 @@ export class ConsultationsComponent implements OnInit {
   filteredConsultations: AppointmentRequest[] = [];
   searchTerm = '';
 
-  constructor(private apptService: AppointmentRequestService) {}
+  constructor(
+    private apptService: AppointmentRequestService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.doctorId = localStorage.getItem('doctorId');
@@ -74,6 +77,17 @@ export class ConsultationsComponent implements OnInit {
         this.applyFilter();
       },
       error: (err) => console.error('Failed to mark consultation completed', err)
+    });
+  }
+
+  openConsultationNotes(c: AppointmentRequest) {
+    this.router.navigate(['/doctor/prescriptions'], {
+      queryParams: {
+        patientId: c.patientId,
+        appointmentId: c.appointmentId,
+        openCreate: '1',
+        mode: 'notes'
+      }
     });
   }
 

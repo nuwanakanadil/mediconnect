@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   SearchIcon,
   MapPinIcon,
@@ -52,6 +52,7 @@ export class BookAppointmentComponent implements OnInit {
   ];
 
   doctors: Doctor[] = [];
+  preselectedDoctorId = '';
 
   timeSlots = [
     '09:00 AM',
@@ -74,13 +75,28 @@ export class BookAppointmentComponent implements OnInit {
     { num: 4, label: 'Confirm' },
   ];
 
-  constructor(private router: Router, private doctorService: DoctorService) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private doctorService: DoctorService
+  ) {}
 
   ngOnInit() {
+    this.preselectedDoctorId = this.route.snapshot.queryParamMap.get('doctorId') ?? '';
+
     this.doctorService.getAllDoctors().subscribe({
       next: (data) => {
-        // Only show active and verified doctors for patients to book
-        this.doctors = data.filter(d => d.active && d.verified);
+        // Keep booking list aligned with public listing behavior.
+        this.doctors = data.filter((d) => d.active !== false);
+
+        if (this.preselectedDoctorId) {
+          const matchedDoctor = this.doctors.find((d) => d.id === this.preselectedDoctorId);
+          if (matchedDoctor) {
+            this.selectedDoctor = matchedDoctor;
+            this.selectedSpecialty = matchedDoctor.specialization;
+            this.step = 3;
+          }
+        }
       },
       error: (err) => console.error('Failed to load doctors', err)
     });

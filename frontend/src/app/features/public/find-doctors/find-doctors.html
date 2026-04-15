@@ -283,15 +283,17 @@
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
               <a
                 routerLink="/patient/book-appointment"
+                [queryParams]="{ doctorId: doctor.id }"
                 class="flex-1 bg-medical-600 text-white text-center py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors"
               >
                 Book Now
               </a>
-              <button
+              <a
+                [routerLink]="['/find-doctors', doctor.id]"
                 class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors"
               >
                 Profile
-              </button>
+              </a>
             </div>
           </div>
         </div>

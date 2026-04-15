@@ -1,0 +1,36 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mediconnect-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  doctor-service:
+    build:
+      context: ./service/doctor_service
+      dockerfile: Dockerfile
+    container_name: mediconnect-doctor-service
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/mediconnect_doctor
+    depends_on:
+      - mongodb
+    ports:
+      - "8083:8083"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mediconnect-frontend
+    restart: unless-stopped
+    depends_on:
+      - doctor-service
+    ports:
+      - "4200:80"
+
+volumes:
+  mongo_data:

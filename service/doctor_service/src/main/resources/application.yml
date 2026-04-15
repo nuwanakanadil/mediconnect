@@ -6,4 +6,4 @@ spring:
     name: doctor-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/mediconnect_doctor
+      uri: ${MONGODB_URI:mongodb://localhost:27017/mediconnect_doctor}

@@ -70,13 +70,21 @@
         <div class="space-y-4">
           <div>
             <h3 class="text-sm font-bold text-slate-900 mb-2">Known Allergies</h3>
-            <div class="flex gap-2">
-              <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200">No data from patient service</span>
+            <div *ngIf="selectedPatient.allergies?.length; else noAllergies" class="flex flex-wrap gap-2">
+              <span *ngFor="let allergy of selectedPatient.allergies" class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200">{{ allergy }}</span>
             </div>
+            <ng-template #noAllergies>
+              <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200">No allergy data available</span>
+            </ng-template>
           </div>
           <div>
             <h3 class="text-sm font-bold text-slate-900 mb-2">Current Medications</h3>
-            <p class="text-sm text-slate-600">No linked medication profile available</p>
+            <div *ngIf="selectedPatient.currentMedications?.length; else noMeds" class="space-y-1">
+              <p *ngFor="let med of selectedPatient.currentMedications" class="text-sm text-slate-700">• {{ med }}</p>
+            </div>
+            <ng-template #noMeds>
+              <p class="text-sm text-slate-600">No medication records available yet.</p>
+            </ng-template>
           </div>
         </div>
       </div>

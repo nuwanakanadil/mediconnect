@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { PrescriptionService, Prescription } from '../../../core/services/prescription.service';
 import {
   DownloadIcon,
@@ -39,6 +40,7 @@ export class PrescriptionsComponent implements OnInit {
   // UI State
   showCreateModal = false;
   viewingPatientReports = false; // Toggle to view mocked patient reports
+  isNotesOnlyContext = false;
 
   // New Prescription Model
   newPrescription: Prescription = {
@@ -52,9 +54,29 @@ export class PrescriptionsComponent implements OnInit {
 
   currentMedication = { name: '', dosage: '', frequency: '', durationDays: 0 };
 
-  constructor(private rxService: PrescriptionService) {}
+  constructor(
+    private rxService: PrescriptionService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
+    const patientId = this.route.snapshot.queryParamMap.get('patientId') ?? '';
+    const appointmentId = this.route.snapshot.queryParamMap.get('appointmentId') ?? '';
+    const openCreateModal = this.route.snapshot.queryParamMap.get('openCreate') === '1';
+    this.isNotesOnlyContext = this.route.snapshot.queryParamMap.get('mode') === 'notes';
+
+    if (patientId) {
+      this.newPrescription.patientId = patientId;
+    }
+
+    if (appointmentId) {
+      this.newPrescription.appointmentId = appointmentId;
+    }
+
+    if (openCreateModal) {
+      this.showCreateModal = true;
+    }
+
     this.doctorId = localStorage.getItem('doctorId');
     if(this.doctorId) {
       this.newPrescription.doctorId = this.doctorId;
@@ -139,11 +161,48 @@ export class PrescriptionsComponent implements OnInit {
     });
   }
 
+  saveConsultationNotes() {
+    if (!this.doctorId) {
+      alert('Doctor session not found. Please log in again.');
+      return;
+    }
+
+    if (!this.newPrescription.patientId.trim() || !this.newPrescription.appointmentId.trim()) {
+      alert('Patient ID and Appointment ID are required.');
+      return;
+    }
+
+    if (!this.newPrescription.additionalNotes.trim()) {
+      alert('Please enter consultation notes before saving.');
+      return;
+    }
+
+    const payload: Prescription = {
+      ...this.newPrescription,
+      diagnosis: this.newPrescription.diagnosis?.trim() || 'Consultation Follow-up',
+      medications: this.newPrescription.medications || []
+    };
+
+    this.rxService.createPrescription(payload).subscribe({
+      next: (res) => {
+        this.prescriptions = [res, ...this.prescriptions];
+        this.applySearch();
+        this.showCreateModal = false;
+        this.resetForm();
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Failed to save consultation notes. Ensure database is running.');
+      }
+    });
+  }
+
   resetForm() {
     this.newPrescription = {
       doctorId: this.doctorId ? this.doctorId : '', patientId: '', appointmentId: '', medications: [], diagnosis: '', additionalNotes: ''
     };
     this.viewingPatientReports = false;
+    this.isNotesOnlyContext = false;
   }
 
   initials(name?: string) {

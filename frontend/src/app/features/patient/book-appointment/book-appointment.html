@@ -91,7 +91,7 @@
 
       <div class="space-y-4">
         <div
-          *ngFor="let doc of doctors"
+          *ngFor="let doc of filteredDoctors"
           (click)="selectDoctor(doc)"
           class="p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4"
           [ngClass]="
