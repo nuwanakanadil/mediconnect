@@ -1,156 +1,240 @@
-<div class="max-w-4xl mx-auto space-y-6">
-  <div>
-    <h1 class="text-2xl font-bold text-slate-900">Profile Settings</h1>
-    <p class="text-slate-500 text-sm mt-1">
-      Manage your personal information and medical history.
-    </p>
-  </div>
+<div class="min-h-screen bg-slate-50/50 p-4 md:p-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header Section -->
+    <div class="mb-8 animate-fade-in duration-700">
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Your Profile</h1>
+      <p class="text-slate-500 mt-1">Manage your personal information and medical preferences.</p>
+    </div>
 
-  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
-    <div class="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row items-center gap-6">
-      <div class="relative">
-        <div class="h-24 w-24 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-3xl border-4 border-white shadow-md">
-          AJ
-        </div>
-        <button class="absolute bottom-0 right-0 bg-white border border-slate-200 p-1.5 rounded-full text-slate-600 hover:text-medical-600 shadow-sm">
-          <lucide-icon [img]="UserIcon" class="h-4 w-4"></lucide-icon>
-        </button>
+    <!-- Error/Success States -->
+    <div *ngIf="errorMessage" class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-between text-rose-700 animate-fade-in duration-300">
+      <div class="flex items-center gap-3">
+        <lucide-icon [img]="AlertCircleIcon" class="h-5 w-5"></lucide-icon>
+        <span class="font-medium">{{ errorMessage }}</span>
       </div>
-      <div class="text-center sm:text-left">
-        <h2 class="text-2xl font-bold text-slate-900">Alex Johnson</h2>
-        <p class="text-slate-500">Patient ID: PT-2023-8492</p>
+      <button (click)="loadProfile()" class="text-sm font-bold underline hover:no-underline">Try Again</button>
+    </div>
+
+    <div *ngIf="successMessage" class="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 flex items-center gap-3 animate-fade-in duration-300">
+      <lucide-icon [img]="CheckCircleIcon" class="h-5 w-5"></lucide-icon>
+      <span class="font-medium">{{ successMessage }}</span>
+    </div>
+
+    <!-- Loading State Skeleton -->
+    <div *ngIf="loading" class="animate-pulse space-y-6">
+      <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+        <div class="flex items-center gap-6 mb-8">
+          <div class="h-24 w-24 rounded-3xl bg-slate-100"></div>
+          <div class="space-y-3">
+            <div class="h-8 w-48 bg-slate-100 rounded-lg"></div>
+            <div class="h-4 w-32 bg-slate-100 rounded-lg"></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-4" *ngFor="let i of [1,2,3,4]">
+            <div class="h-4 w-24 bg-slate-100 rounded"></div>
+            <div class="h-12 w-full bg-slate-50 rounded-xl"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="p-6 sm:p-8">
-      <h3 class="text-lg font-bold text-slate-900 mb-6">Personal Information</h3>
-
-      <form class="space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-              First Name
-            </label>
-            <input
-              type="text"
-              value="Alex"
-              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value="Johnson"
-              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-              Email Address
-            </label>
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="animate-fade-in animate-slide-up duration-700">
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Profile Overview Card -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+          <div class="p-8 border-b border-slate-50 flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-white to-slate-50/30">
             <div class="relative">
-              <lucide-icon
-                [img]="MailIcon"
-                class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"
-              ></lucide-icon>
-              <input
-                type="email"
-                value="alex.j@example.com"
-                class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
-              />
+              <div class="h-28 w-28 rounded-3xl bg-medical-500 text-white flex items-center justify-center text-3xl font-bold shadow-lg shadow-medical-200">
+                {{ getInitials() }}
+              </div>
+              <button type="button" class="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-md border border-slate-100 text-slate-600 hover:text-medical-600 transition-colors">
+                <lucide-icon [img]="CameraIcon" class="h-5 w-5"></lucide-icon>
+              </button>
+            </div>
+            <div class="text-center md:text-left">
+              <h2 class="text-2xl font-bold text-slate-900">{{ patient?.fullName || 'User Profile' }}</h2>
+              <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-medical-50 text-medical-700 rounded-full text-xs font-bold uppercase tracking-wider">
+                  Patient Portal
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium">
+                  ID: #{{ patient?.id?.slice(-6)?.toUpperCase() || '------' }}
+                </span>
+              </div>
             </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-              Phone Number
-            </label>
-            <div class="relative">
-              <lucide-icon
-                [img]="PhoneIcon"
-                class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"
-              ></lucide-icon>
+
+          <div class="p-8">
+            <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <span class="w-1.5 h-6 bg-medical-500 rounded-full"></span>
+              Personal Information
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <!-- Full Name -->
+              <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 ml-1">Full Name</label>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-medical-600 transition-colors">
+                    <lucide-icon [img]="UserIcon" class="h-5 w-5"></lucide-icon>
+                  </div>
+                  <input
+                    type="text"
+                    formControlName="fullName"
+                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all placeholder-slate-400 font-medium outline-none"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-medical-600 transition-colors">
+                    <lucide-icon [img]="PhoneIcon" class="h-5 w-5"></lucide-icon>
+                  </div>
+                  <input
+                    type="tel"
+                    formControlName="phone"
+                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all font-medium outline-none"
+                  />
+                </div>
+              </div>
+
+              <!-- Date of Birth -->
+              <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 ml-1">Date of Birth</label>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-medical-600 transition-colors">
+                    <lucide-icon [img]="CalendarIcon" class="h-5 w-5"></lucide-icon>
+                  </div>
+                  <input
+                    type="date"
+                    formControlName="dateOfBirth"
+                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all font-medium outline-none"
+                  />
+                </div>
+              </div>
+
+              <!-- Gender -->
+              <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 ml-1">Gender</label>
+                <div class="relative group">
+                  <select
+                    formControlName="gender"
+                    class="block w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all font-medium appearance-none outline-none"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
+                    <lucide-icon [img]="ChevronDownIcon" class="h-5 w-5"></lucide-icon>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Blood Group -->
+              <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 ml-1">Blood Group</label>
+                <input
+                  type="text"
+                  formControlName="bloodGroup"
+                  placeholder="e.g., A+"
+                  class="block w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all font-medium outline-none"
+                />
+              </div>
+
+              <!-- Email (Disabled) -->
+              <div class="space-y-2 opacity-70">
+                <label class="text-sm font-bold text-slate-700 ml-1">Email Address (Read-only)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                    <lucide-icon [img]="MailIcon" class="h-5 w-5"></lucide-icon>
+                  </div>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    class="block w-full pl-11 pr-4 py-3.5 bg-slate-100 border border-slate-100 rounded-2xl text-slate-500 cursor-not-allowed font-medium outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="mt-8 space-y-2">
+              <label class="text-sm font-bold text-slate-700 ml-1">Permanent Address</label>
+              <div class="relative group">
+                <div class="absolute top-3.5 left-4 text-slate-400 group-focus-within:text-medical-600 transition-colors">
+                  <lucide-icon [img]="MapPinIcon" class="h-5 w-5"></lucide-icon>
+                </div>
+                <textarea
+                  formControlName="address"
+                  rows="3"
+                  class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all font-medium resize-none outline-none"
+                  placeholder="Enter your street address, city, and zip code"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Contact Card -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-rose-500 rounded-full"></span>
+            Emergency Contact
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+              <label class="text-sm font-bold text-slate-700 ml-1">Contact Name</label>
+              <input
+                type="text"
+                formControlName="emergencyContactName"
+                class="block w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-rose-500 focus:bg-white transition-all font-medium outline-none"
+                placeholder="Full name of contact"
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-bold text-slate-700 ml-1">Contact Phone</label>
               <input
                 type="tel"
-                value="+1 (555) 123-4567"
-                class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              value="1990-05-15"
-              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 text-slate-700"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-              Gender
-            </label>
-            <select class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 text-slate-700">
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="pt-6 border-t border-slate-100">
-          <h3 class="text-lg font-bold text-slate-900 mb-6">Medical Profile</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                Blood Type
-              </label>
-              <select
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 text-slate-700"
-              >
-                <option>A+</option>
-                <option>A-</option>
-                <option>B+</option>
-                <option>B-</option>
-                <option>AB+</option>
-                <option>AB-</option>
-                <option selected>O+</option>
-                <option>O-</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                Known Allergies
-              </label>
-              <input
-                type="text"
-                value="Penicillin, Peanuts"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
-              />
-            </div>
-            <div class="sm:col-span-2">
-              <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                Current Medications
-              </label>
-              <input
-                type="text"
-                value="Lisinopril 10mg"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
+                formControlName="emergencyContactPhone"
+                class="block w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-2 focus:ring-rose-500 focus:bg-white transition-all font-medium outline-none"
+                placeholder="+1 (555) 000-0000"
               />
             </div>
           </div>
         </div>
 
-        <div class="pt-6 flex justify-end">
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-4 pb-8">
           <button
             type="button"
-            class="bg-medical-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2"
+            (click)="loadProfile()"
+            class="px-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"
           >
-            <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
-            Save Changes
+            Reset Changes
+          </button>
+          <button
+            type="submit"
+            [disabled]="loading || profileForm.invalid || !profileForm.dirty || saving"
+            class="flex items-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            <lucide-icon *ngIf="!saving" [img]="SaveIcon" class="h-5 w-5 group-hover:scale-110 transition-transform"></lucide-icon>
+            <span *ngIf="!saving">Save Changes</span>
+            <span *ngIf="saving" class="flex items-center gap-2">
+              <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Updating...
+            </span>
           </button>
         </div>
       </form>

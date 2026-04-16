@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DoctorService } from '../../../core/services/doctor.service';
+import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, HeartPulseIcon, MailIcon, LockIcon, ArrowRightIcon } from 'lucide-angular';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,73 +18,45 @@ export class LoginComponent {
   readonly LockIcon = LockIcon;
   readonly ArrowRightIcon = ArrowRightIcon;
 
-  role: 'patient' | 'doctor' = 'patient';
   loginForm: FormGroup;
-  isSubmitting = false;
+  loading = false;
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private doctorService: DoctorService,
+    private authService: AuthService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
-  setRole(role: 'patient' | 'doctor') {
-    this.role = role;
-  }
-
-  onSubmit() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
-    const email = String(this.loginForm.value.email || '').trim().toLowerCase();
-    this.isSubmitting = true;
-
-    if (this.role === 'doctor') {
-      this.doctorService.getAllDoctors().subscribe({
-        next: (doctors) => {
-          const matchedDoctor = doctors.find((d) => d.email.toLowerCase() === email);
-
-          if (!matchedDoctor || !matchedDoctor.id) {
-            this.isSubmitting = false;
-            alert('Doctor account not found. Please register first.');
-            return;
-          }
-
-          if (matchedDoctor.active === false) {
-            this.isSubmitting = false;
-            alert('This doctor account is deactivated. Please contact admin.');
-            return;
-          }
-
-          localStorage.setItem('role', 'doctor');
-          localStorage.setItem('doctorId', matchedDoctor.id);
-          localStorage.setItem('doctorFirstName', matchedDoctor.firstName || '');
-          localStorage.setItem('doctorLastName', matchedDoctor.lastName || '');
-
-          this.isSubmitting = false;
-          this.router.navigate(['/doctor/dashboard']);
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.loading = true;
+      this.errorMessage = '';
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          this.loading = false;
+          const route = response.role === 'ADMIN' ? '/admin/dashboard' : '/patient/dashboard';
+          this.router.navigate([route]);
         },
-        error: () => {
-          this.isSubmitting = false;
-          alert('Unable to reach doctor service. Ensure backend is running on port 8083.');
+        error: (err) => {
+          this.loading = false;
+          if (err.error && typeof err.error === 'object') {
+            if (err.error.message) {
+              this.errorMessage = err.error.message;
+            } else {
+              // Map-based validation errors
+              this.errorMessage = Object.values(err.error).join(', ');
+            }
+          } else {
+            this.errorMessage = 'Invalid email or password';
+          }
         }
       });
-
-      return;
     }
-
-    localStorage.setItem('role', 'patient');
-    localStorage.removeItem('doctorId');
-    localStorage.removeItem('doctorFirstName');
-    localStorage.removeItem('doctorLastName');
-    this.isSubmitting = false;
-    this.router.navigate(['/patient/dashboard']);
   }
 }

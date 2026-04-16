@@ -12,6 +12,9 @@ import {
   LucideAngularModule,
 } from 'lucide-angular';
 
+import { AdminService } from '../../../core/services/admin.service';
+import { forkJoin } from 'rxjs';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -29,12 +32,42 @@ export class DashboardComponent {
   readonly CreditCardIcon = CreditCardIcon;
   readonly ActivityIcon = ActivityIcon;
 
+  loading = true;
+  errorMessage = '';
+
   stats = [
-    { title: 'Total Patients', value: '50,482', icon: UsersIcon, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { title: 'Total Doctors', value: '684', icon: StethoscopeIcon, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { title: 'Appointments', value: '12,948', icon: CalendarIcon, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { title: 'Revenue', value: '$84,220', icon: DollarSignIcon, color: 'text-amber-600', bg: 'bg-amber-100' },
+    { title: 'Total Patients', value: '0', icon: UsersIcon, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { title: 'Total Doctors', value: '0', icon: StethoscopeIcon, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { title: 'Pending Verifications', value: '0', icon: ShieldCheckIcon, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { title: 'Appointments', value: '0', icon: CalendarIcon, color: 'text-amber-600', bg: 'bg-amber-100' },
   ];
+
+  constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    this.fetchData();
+  }
+
+  fetchData(): void {
+    this.loading = true;
+    forkJoin({
+      patients: this.adminService.getPatients(),
+      doctors: this.adminService.getDoctors()
+    }).subscribe({
+      next: (result) => {
+        this.stats[0].value = result.patients.length.toString();
+        this.stats[1].value = result.doctors.length.toString();
+        this.stats[2].value = result.doctors.filter(d => d.status === 'PENDING').length.toString();
+        // Appointments would come from an appointment service, setting to 0 for now
+        this.stats[3].value = '0'; 
+        this.loading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load dashboard data.';
+        this.loading = false;
+      }
+    });
+  }
 
   activities = [
     { title: 'New doctor registration submitted', meta: 'Dr. Alan Moore • 10 mins ago', level: 'info' },

@@ -1,0 +1,28 @@
+# Maven build artifacts
+
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# Maven wrapper and local files
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDEs and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore

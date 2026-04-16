@@ -8,17 +8,24 @@
     </div>
   </div>
 
-  <div class="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:bg-slate-50 hover:border-medical-400 transition-colors cursor-pointer group">
+  <label class="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:bg-slate-50 hover:border-medical-400 transition-colors cursor-pointer group block">
+    <input type="file" class="hidden" (change)="handleFileUpload($event)" [disabled]="uploading" />
     <div class="mx-auto w-16 h-16 bg-medical-50 text-medical-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-      <lucide-icon [img]="UploadCloudIcon" class="h-8 w-8"></lucide-icon>
+      <lucide-icon *ngIf="!uploading" [img]="UploadCloudIcon" class="h-8 w-8"></lucide-icon>
+      <div *ngIf="uploading" class="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-600"></div>
     </div>
-    <h3 class="text-lg font-bold text-slate-900 mb-1">Upload New Report</h3>
+    <h3 class="text-lg font-bold text-slate-900 mb-1">{{ uploading ? 'Uploading...' : 'Upload New Report' }}</h3>
     <p class="text-sm text-slate-500 mb-4">
-      Drag and drop your files here, or click to browse
+      {{ uploading ? 'Please wait while we secure your document' : 'Drag and drop your files here, or click to browse' }}
     </p>
     <p class="text-xs text-slate-400">
       Supported formats: PDF, JPG, PNG (Max 10MB)
     </p>
+  </label>
+
+  <div *ngIf="errorMessage" class="p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 flex items-center gap-3 animate-fade-in">
+    <lucide-icon [img]="FilterIcon" class="h-5 w-5"></lucide-icon>
+    <span class="font-medium">{{ errorMessage }}</span>
   </div>
 
   <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
@@ -44,58 +51,92 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-slate-600">
-        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
-          <tr>
-            <th class="px-6 py-4">Document Name</th>
-            <th class="px-6 py-4">Type</th>
-            <th class="px-6 py-4">Date Added</th>
-            <th class="px-6 py-4">Added By</th>
-            <th class="px-6 py-4 text-right">Actions</th>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Report Name
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Type
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Upload Date
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+              Actions
+            </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngIf="loading" class="text-center py-8">
+            <td colspan="4" class="px-6 py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-600 mx-auto"></div>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && reports.length === 0" class="text-center py-8">
+            <td colspan="4" class="px-6 py-8 text-slate-500 italic">
+              No reports found. Upload your first report!
+            </td>
+          </tr>
           <tr
             *ngFor="let report of reports"
-            class="hover:bg-slate-50/50 transition-colors"
+            class="hover:bg-slate-50/50 transition-colors group"
           >
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center gap-3">
-                <div class="p-2 bg-slate-100 rounded-lg text-slate-500">
+                <div
+                  [class]="
+                    'p-2 rounded-lg ' +
+                    (isPdf(report.originalFileName)
+                      ? 'bg-rose-50 text-rose-600'
+                      : 'bg-blue-50 text-blue-600')
+                  "
+                >
                   <lucide-icon
-                    [img]="isPdf(report.name) ? FileTextIcon : FileIcon"
+                    [img]="isPdf(report.originalFileName) ? FileTextIcon : FileIcon"
                     class="h-5 w-5"
                   ></lucide-icon>
                 </div>
                 <div>
-                  <p class="font-medium text-slate-900">{{ report.name }}</p>
-                  <p class="text-xs text-slate-500">{{ report.size }}</p>
+                  <div class="font-medium text-slate-900 group-hover:text-medical-600 transition-colors">
+                    {{ report.originalFileName }}
+                  </div>
+                  <div class="text-xs text-slate-500">{{ report.description }}</div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                {{ report.type }}
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                {{ report.fileType }}
               </span>
             </td>
-            <td class="px-6 py-4 font-medium text-slate-900">{{ report.date }}</td>
-            <td class="px-6 py-4">{{ report.doctor }}</td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <button
-                  class="p-1.5 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+              {{ formatDate(report.uploadedAt) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right">
+              <div class="flex items-center justify-end gap-1">
+                <a
+                  *ngIf="report.fileUrl"
+                  [href]="report.fileUrl"
+                  target="_blank"
+                  class="p-2 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
                   title="View"
                 >
                   <lucide-icon [img]="EyeIcon" class="h-4 w-4"></lucide-icon>
-                </button>
-                <button
-                  class="p-1.5 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
+                </a>
+                <a
+                  *ngIf="report.fileUrl"
+                  [href]="report.fileUrl"
+                  download
+                  class="p-2 text-slate-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg transition-colors"
                   title="Download"
                 >
                   <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
-                </button>
+                </a>
                 <button
-                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  (click)="deleteReport(report.id.toString())"
+                  class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                   title="Delete"
                 >
                   <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>

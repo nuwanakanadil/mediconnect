@@ -1,76 +1,76 @@
 <div class="space-y-6">
   <div>
-    <h1 class="text-2xl font-bold text-slate-900">Digital Prescriptions</h1>
+    <h1 class="text-2xl font-bold text-slate-900">My Prescriptions</h1>
     <p class="text-slate-500 text-sm mt-1">
-      View and download your prescribed medications.
+      View and manage your current and past medications.
     </p>
   </div>
 
-  <div class="grid grid-cols-1 gap-6 animate-stagger">
+  <div *ngIf="errorMessage" class="p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-100">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-medical-600"></div>
+  </div>
+
+  <div *ngIf="!loading && prescriptions.length === 0" class="bg-white rounded-2xl p-12 text-center border border-slate-100">
+    <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-slate-50 text-slate-400 mb-4">
+      <lucide-icon [img]="PillIcon" class="h-8 w-8"></lucide-icon>
+    </div>
+    <h3 class="text-lg font-bold text-slate-900">No prescriptions found</h3>
+    <p class="text-slate-500 max-w-xs mx-auto mt-1">
+      Any prescriptions issued by your doctors will be displayed here.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" *ngIf="!loading">
     <div
       *ngFor="let rx of prescriptions"
-      class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden"
+      class="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden hover:shadow-lg transition-shadow group h-fit"
     >
-      <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div class="flex items-center gap-4">
-          <div class="bg-medical-100 p-3 rounded-xl text-medical-600">
-            <lucide-icon [img]="PillIcon" class="h-6 w-6"></lucide-icon>
+      <div class="p-6 border-b border-slate-100">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+            <lucide-icon [img]="CalendarIcon" class="h-4 w-4"></lucide-icon>
+            {{ formatDate(rx.issuedDate) }}
+          </div>
+          <app-status-badge [status]="rx.status"></app-status-badge>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-full bg-medical-50 text-medical-600 flex items-center justify-center">
+            <lucide-icon [img]="UserIcon" class="h-5 w-5"></lucide-icon>
           </div>
           <div>
-            <div class="flex items-center gap-3 mb-1">
-              <h2 class="text-lg font-bold text-slate-900">{{ rx.id }}</h2>
-              <app-status-badge [status]="rx.status"></app-status-badge>
-            </div>
-            <div class="flex items-center gap-4 text-sm text-slate-500">
-              <span class="flex items-center gap-1">
-                <lucide-icon [img]="CalendarIcon" class="h-4 w-4"></lucide-icon>
-                {{ rx.date }}
-              </span>
-              <span class="flex items-center gap-1">
-                <lucide-icon [img]="UserIcon" class="h-4 w-4"></lucide-icon>
-                {{ rx.doctor }}
-              </span>
-            </div>
+            <h3 class="font-bold text-slate-900">{{ rx.doctorName }}</h3>
+            <p class="text-xs text-slate-500">Medical Professional</p>
           </div>
         </div>
-        <button class="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm w-full sm:w-auto justify-center">
+      </div>
+
+      <div class="p-6 space-y-6">
+        <div>
+          <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
+            <lucide-icon [img]="PillIcon" class="h-4 w-4 text-medical-600"></lucide-icon>
+            Medication Details
+          </h4>
+          <div class="bg-slate-50/50 rounded-xl p-4 border border-slate-100/50">
+            <p class="text-slate-900 whitespace-pre-line">{{ rx.medicationDetails }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="rx.notes" class="bg-amber-50/50 border border-amber-100/50 rounded-xl p-4">
+          <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Doctor's Notes</h4>
+          <p class="text-sm text-amber-800">{{ rx.notes }}</p>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-500 font-medium">Ref: #{{ rx.id.substring(0, 8) }}</span>
+        <button class="flex items-center gap-2 text-sm font-bold text-medical-600 hover:text-medical-700 transition-colors">
           <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
           Download PDF
         </button>
-      </div>
-
-      <div class="p-6">
-        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">
-          Prescribed Medications
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div
-            *ngFor="let med of rx.medications"
-            class="border border-slate-100 rounded-xl p-4 flex items-start gap-3"
-          >
-            <lucide-icon
-              [img]="CheckCircle2Icon"
-              class="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5"
-            ></lucide-icon>
-            <div>
-              <p class="font-bold text-slate-900">
-                {{ med.name }}
-                <span class="text-medical-600 font-medium text-sm ml-1">
-                  {{ med.dosage }}
-                </span>
-              </p>
-              <p class="text-sm text-slate-600 mt-1">{{ med.frequency }}</p>
-              <p class="text-xs text-slate-400 mt-1">Duration: {{ med.duration }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4">
-          <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">
-            Doctor's Notes
-          </h4>
-          <p class="text-sm text-amber-900">{{ rx.notes }}</p>
-        </div>
       </div>
     </div>
   </div>

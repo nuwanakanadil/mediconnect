@@ -11,13 +11,9 @@
       <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 rounded-full z-0"></div>
       <div
         class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-medical-500 rounded-full z-0 transition-all duration-300"
-        [style.width]="progressWidth()"
-      ></div>
+        [style.width]="progressWidth()"></div>
 
-      <div
-        *ngFor="let s of steps"
-        class="relative z-10 flex flex-col items-center gap-2"
-      >
+      <div *ngFor="let s of steps" class="relative z-10 flex flex-col items-center gap-2">
         <div
           class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2"
           [ngClass]="
@@ -26,20 +22,13 @@
               : step === s.num
               ? 'bg-white border-medical-500 text-medical-600'
               : 'bg-white border-slate-200 text-slate-400'
-          "
-        >
-          <lucide-icon
-            *ngIf="step > s.num; else stepNumber"
-            [img]="CheckCircle2Icon"
-            class="h-5 w-5"
-          ></lucide-icon>
+          ">
+          <lucide-icon *ngIf="step > s.num; else stepNumber" [img]="CheckCircle2Icon" class="h-5 w-5"></lucide-icon>
           <ng-template #stepNumber>{{ s.num }}</ng-template>
         </div>
 
-        <span
-          class="text-xs font-medium hidden sm:block"
-          [ngClass]="step >= s.num ? 'text-slate-900' : 'text-slate-400'"
-        >
+        <span class="text-xs font-medium hidden sm:block"
+          [ngClass]="step >= s.num ? 'text-slate-900' : 'text-slate-400'">
           {{ s.label }}
         </span>
       </div>
@@ -53,29 +42,19 @@
       </h2>
 
       <div class="relative mb-8">
-        <lucide-icon
-          [img]="SearchIcon"
-          class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"
-        ></lucide-icon>
-        <input
-          type="text"
-          placeholder="Search specialties..."
-          class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500"
-        />
+        <lucide-icon [img]="SearchIcon"
+          class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></lucide-icon>
+        <input type="text" placeholder="Search specialties..."
+          class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <button
-          *ngFor="let spec of specialties"
-          type="button"
-          (click)="selectSpecialty(spec)"
-          class="p-4 rounded-xl border text-center transition-all"
-          [ngClass]="
+        <button *ngFor="let spec of specialties" type="button" (click)="selectSpecialty(spec); $event.stopPropagation()"
+          class="p-4 rounded-xl border text-center transition-all" [ngClass]="
             selectedSpecialty === spec
               ? 'border-medical-500 bg-medical-50 text-medical-700 shadow-sm'
               : 'border-slate-200 hover:border-medical-300 hover:bg-slate-50 text-slate-700'
-          "
-        >
+          ">
           <span class="font-medium text-sm">{{ spec }}</span>
         </button>
       </div>
@@ -89,25 +68,35 @@
         </span>
       </div>
 
-      <div class="space-y-4">
-        <div
-          *ngFor="let doc of filteredDoctors"
-          (click)="selectDoctor(doc)"
-          class="p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4"
-          [ngClass]="
+      <div *ngIf="loadingDoctors" class="flex flex-col items-center justify-center py-12">
+        <span class="animate-spin rounded-full h-10 w-10 border-4 border-medical-100 border-t-medical-600 mb-4"></span>
+        <p class="text-slate-500 font-medium">Finding available doctors...</p>
+      </div>
+
+      <div *ngIf="!loadingDoctors && doctors.length === 0"
+        class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <lucide-icon [img]="SearchIcon" class="h-8 w-8 text-slate-400"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900">No doctors found</h3>
+        <p class="text-slate-500 max-w-sm">We couldn't find any verified doctors for this specialty at the moment.</p>
+        <button (click)="handlePrev()" class="mt-6 text-medical-600 font-semibold hover:text-medical-700">
+          Try another specialty
+        </button>
+      </div>
+
+      <div *ngIf="!loadingDoctors && doctors.length > 0" class="space-y-4">
+        <div *ngFor="let doc of doctors" (click)="selectDoctor(doc); $event.stopPropagation()"
+          class="p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4" [ngClass]="
             selectedDoctor?.id === doc.id
               ? 'border-medical-500 bg-medical-50 shadow-sm'
               : 'border-slate-200 hover:border-medical-300 hover:bg-slate-50'
-          "
-        >
-          <img
-            [src]="'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'"
-            [alt]="doc.firstName"
-            class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
-          />
+          ">
+          <img [src]="doc.image" [alt]="doc.fullName"
+            class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
 
           <div class="flex-1">
-            <h3 class="font-bold text-slate-900 text-lg">Dr. {{ doc.firstName }} {{ doc.lastName }}</h3>
+            <h3 class="font-bold text-slate-900 text-lg">{{ doc.fullName }}</h3>
             <p class="text-sm text-slate-500 flex items-center gap-1">
               <lucide-icon [img]="MapPinIcon" class="h-3 w-3"></lucide-icon>
               {{ doc.hospitalName }}
@@ -116,21 +105,15 @@
 
           <div class="text-right hidden sm:block">
             <div class="flex items-center justify-end gap-1 mb-1">
-              <lucide-icon
-                [img]="StarIcon"
-                class="h-4 w-4 text-amber-400 fill-amber-400"
-              ></lucide-icon>
-              <span class="font-bold text-slate-900 text-sm">4.9</span>
+              <lucide-icon [img]="StarIcon" class="h-4 w-4 text-amber-400 fill-amber-400"></lucide-icon>
+              <span class="font-bold text-slate-900 text-sm">{{ doc.rating || 'N/A' }}</span>
             </div>
             <span class="text-sm font-medium text-medical-600">
-              ${{ doc.consultationFee }} / visit
+              ${{ doc.consultingFee }} / visit
             </span>
           </div>
 
-          <lucide-icon
-            [img]="ChevronRightIcon"
-            class="h-5 w-5 text-slate-400 sm:hidden"
-          ></lucide-icon>
+          <lucide-icon [img]="ChevronRightIcon" class="h-5 w-5 text-slate-400 sm:hidden"></lucide-icon>
         </div>
       </div>
     </div>
@@ -147,11 +130,12 @@
 
           <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
             <div class="flex justify-between items-center mb-4">
-              <button type="button" class="p-1 hover:bg-slate-200 rounded">
+              <button type="button" (click)="prevMonth()" class="p-1 hover:bg-slate-200 rounded">
                 <lucide-icon [img]="ChevronLeftIcon" class="h-5 w-5"></lucide-icon>
               </button>
-              <span class="font-bold text-slate-900">October 2023</span>
-              <button type="button" class="p-1 hover:bg-slate-200 rounded">
+              <span class="font-bold text-slate-900">{{ months[viewDate.getMonth()] }} {{ viewDate.getFullYear()
+                }}</span>
+              <button type="button" (click)="nextMonth()" class="p-1 hover:bg-slate-200 rounded">
                 <lucide-icon [img]="ChevronRightIcon" class="h-5 w-5"></lucide-icon>
               </button>
             </div>
@@ -167,21 +151,19 @@
             </div>
 
             <div class="grid grid-cols-7 gap-1 text-center text-sm">
-              <button
-                *ngFor="let d of [].constructor(31); let i = index"
-                type="button"
-                [disabled]="isPastDay(i + 1)"
-                class="p-2 rounded-lg transition-colors"
-                [ngClass]="
-                  isSelectedDay(i + 1)
-                    ? 'bg-medical-600 text-white font-bold shadow-sm'
-                    : isPastDay(i + 1)
-                    ? 'text-slate-300 cursor-not-allowed'
-                    : 'text-slate-700 hover:bg-slate-200'
-                "
-              >
-                {{ i + 1 }}
-              </button>
+              <div *ngFor="let day of calendarDays">
+                <button *ngIf="day" type="button" (click)="selectDate(day)" [disabled]="isPastDay(day)"
+                  class="w-full p-2 rounded-lg transition-colors text-center" [ngClass]="
+                    isSelectedDay(day)
+                      ? 'bg-medical-600 text-white font-bold shadow-sm'
+                      : isPastDay(day)
+                      ? 'text-slate-300 cursor-not-allowed'
+                      : 'text-slate-700 hover:bg-slate-200'
+                  ">
+                  {{ day }}
+                </button>
+                <div *ngIf="!day" class="p-2"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -193,17 +175,12 @@
           </h3>
 
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <button
-              *ngFor="let time of timeSlots"
-              type="button"
-              (click)="selectTime(time)"
-              class="py-2 px-3 rounded-lg text-sm font-medium border transition-colors"
-              [ngClass]="
+            <button *ngFor="let time of timeSlots" type="button" (click)="selectTime(time)"
+              class="py-2 px-3 rounded-lg text-sm font-medium border transition-colors" [ngClass]="
                 selectedTime === time
                   ? 'border-medical-500 bg-medical-50 text-medical-700 shadow-sm'
                   : 'border-slate-200 text-slate-600 hover:border-medical-300 hover:bg-slate-50'
-              "
-            >
+              ">
               {{ time }}
             </button>
           </div>
@@ -213,39 +190,25 @@
           </h3>
 
           <div class="flex gap-4">
-            <label
-              class="flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors"
+            <label class="flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors"
               [ngClass]="
                 consultType === 'video'
                   ? 'border-medical-500 bg-medical-50'
                   : 'border-slate-200 hover:bg-slate-50'
-              "
-            >
-              <input
-                type="radio"
-                name="type"
-                [checked]="consultType === 'video'"
-                (change)="consultType = 'video'"
-                class="text-medical-600 focus:ring-medical-500"
-              />
+              ">
+              <input type="radio" name="type" [checked]="consultType === 'video'" (change)="consultType = 'video'"
+                class="text-medical-600 focus:ring-medical-500" />
               <span class="text-sm font-medium text-slate-900">Video Call</span>
             </label>
 
-            <label
-              class="flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors"
+            <label class="flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors"
               [ngClass]="
                 consultType === 'in-person'
                   ? 'border-medical-500 bg-medical-50'
                   : 'border-slate-200 hover:bg-slate-50'
-              "
-            >
-              <input
-                type="radio"
-                name="type"
-                [checked]="consultType === 'in-person'"
-                (change)="consultType = 'in-person'"
-                class="text-medical-600 focus:ring-medical-500"
-              />
+              ">
+              <input type="radio" name="type" [checked]="consultType === 'in-person'"
+                (change)="consultType = 'in-person'" class="text-medical-600 focus:ring-medical-500" />
               <span class="text-sm font-medium text-slate-900">In-Person</span>
             </label>
           </div>
@@ -254,33 +217,34 @@
     </div>
 
     <div *ngIf="step === 4" class="animate-fade-in max-w-2xl mx-auto">
+      <div *ngIf="errorMessage"
+        class="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-center gap-3">
+        <lucide-icon [img]="CheckCircle2Icon" class="h-5 w-5 rotate-45"></lucide-icon>
+        {{ errorMessage }}
+      </div>
+
       <h2 class="text-xl font-bold text-slate-900 mb-6 text-center">
         Confirm Booking Details
       </h2>
 
       <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 mb-8">
         <div class="flex items-center gap-4 pb-6 border-b border-slate-200 mb-6">
-          <img
-            [src]="'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'"
-            [alt]="selectedDoctor?.firstName"
-            class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
-          />
+          <img [src]="selectedDoctor?.image" [alt]="selectedDoctor?.fullName"
+            class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
           <div>
-            <h3 class="font-bold text-slate-900 text-lg">Dr. {{ selectedDoctor?.firstName }} {{ selectedDoctor?.lastName }}</h3>
+            <h3 class="font-bold text-slate-900 text-lg">{{ selectedDoctor?.fullName }}</h3>
             <p class="text-sm text-slate-500">
-              {{ selectedDoctor?.specialization }} • {{ selectedDoctor?.hospitalName }}
+              {{ selectedDoctor?.specialization }} • {{ selectedDoctor?.hospital }}
             </p>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-6 mb-6">
-          <div>
-            <p class="text-xs text-slate-500 font-medium mb-1 uppercase tracking-wider">
-              Date & Time
-            </p>
-            <p class="font-bold text-slate-900">Oct 25, 2023</p>
-            <p class="text-sm text-slate-600">{{ selectedTime }}</p>
-          </div>
+          <p class="text-xs text-slate-500 font-medium mb-1 uppercase tracking-wider">
+            Date & Time
+          </p>
+          <p class="font-bold text-slate-900">{{ selectedDate | date:'mediumDate' }}</p>
+          <p class="text-sm text-slate-600">{{ selectedTime }}</p>
 
           <div>
             <p class="text-xs text-slate-500 font-medium mb-1 uppercase tracking-wider">
@@ -295,7 +259,7 @@
         <div class="bg-white p-4 rounded-xl border border-slate-200 flex justify-between items-center">
           <span class="font-medium text-slate-700">Consultation Fee</span>
           <span class="text-xl font-bold text-slate-900">
-            ${{ selectedDoctor?.consultationFee }}
+            ${{ selectedDoctor?.consultingFee }}
           </span>
         </div>
       </div>
@@ -303,38 +267,27 @@
   </div>
 
   <div class="flex justify-between items-center pt-4">
-    <button
-      type="button"
-      (click)="handlePrev()"
-      class="px-6 py-2.5 rounded-xl font-medium transition-colors"
-      [ngClass]="
+    <button type="button" (click)="handlePrev()" class="px-6 py-2.5 rounded-xl font-medium transition-colors" [ngClass]="
         step === 1
           ? 'invisible'
           : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50'
-      "
-    >
+      ">
       Back
     </button>
 
-    <button
-      *ngIf="step < 4; else confirmBtn"
-      type="button"
-      (click)="handleNext()"
-      [disabled]="step === 3 && !selectedTime"
-      class="bg-medical-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-    >
+    <button *ngIf="step < 4; else confirmBtn" type="button" (click)="handleNext()"
+      [disabled]="(step === 1 && !selectedSpecialty) || (step === 2 && !selectedDoctor) || (step === 3 && !selectedTime)"
+      class="bg-medical-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
       Continue
       <lucide-icon [img]="ChevronRightIcon" class="h-4 w-4"></lucide-icon>
     </button>
 
     <ng-template #confirmBtn>
-      <button
-        type="button"
-        (click)="handleConfirm()"
-        class="bg-medical-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2"
-      >
-        <lucide-icon [img]="CreditCardIcon" class="h-4 w-4"></lucide-icon>
-        Confirm & Pay
+      <button type="button" (click)="handleConfirm()" [disabled]="loading"
+        class="bg-medical-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+        <span *ngIf="loading" class="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></span>
+        <lucide-icon *ngIf="!loading" [img]="CreditCardIcon" class="h-4 w-4"></lucide-icon>
+        {{ loading ? 'Processing...' : 'Confirm' }}
       </button>
     </ng-template>
   </div>
