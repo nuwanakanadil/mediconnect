@@ -16,6 +16,7 @@
         <input
           type="text"
           placeholder="Search consultations..."
+          (input)="onSearch($any($event.target).value)"
           class="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"
         />
       </div>
@@ -23,40 +24,40 @@
 
     <div class="divide-y divide-slate-100">
       <div
-        *ngFor="let c of consultations"
+        *ngFor="let c of filteredConsultations"
         class="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
       >
         <div class="flex items-start gap-4">
           <div class="h-12 w-12 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold border border-slate-200">
-            {{ initials(c.patient) }}
+            {{ initials(c.patientId) }}
           </div>
 
           <div>
             <div class="flex items-center gap-3 mb-1 flex-wrap">
-              <h3 class="font-bold text-slate-900">{{ c.patient }}</h3>
-              <app-status-badge [status]="c.status"></app-status-badge>
+              <h3 class="font-bold text-slate-900">Patient {{ c.patientId }}</h3>
+              <app-status-badge [status]="getStatusLabel(c.status)"></app-status-badge>
             </div>
 
-            <p class="text-sm text-slate-500 mb-3">{{ c.reason }}</p>
+            <p class="text-sm text-slate-500 mb-3">{{ c.patientNotes || 'No consultation notes from patient.' }}</p>
 
             <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
               <span class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md">
                 <lucide-icon [img]="CalendarIcon" class="h-3 w-3"></lucide-icon>
-                {{ c.date }}
+                {{ getDisplayDate(c.appointmentDateTime) }}
               </span>
 
               <span class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md">
                 <lucide-icon [img]="ClockIcon" class="h-3 w-3"></lucide-icon>
-                {{ c.time }}
+                {{ getDisplayTime(c.appointmentDateTime) }}
               </span>
 
               <span class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md">
                 <lucide-icon
-                  [img]="c.type === 'Video Consult' ? VideoIcon : FileTextIcon"
+                  [img]="VideoIcon"
                   class="h-3 w-3"
-                  [ngClass]="c.type === 'Video Consult' ? 'text-medical-500' : 'text-blue-500'"
+                  [ngClass]="'text-medical-500'"
                 ></lucide-icon>
-                {{ c.type }}
+                Video Consult
               </span>
             </div>
           </div>
@@ -64,7 +65,7 @@
 
         <div class="flex items-center gap-3">
           <a
-            *ngIf="c.status === 'in progress'; else notesBtn"
+            *ngIf="c.status === 'ACCEPTED'; else notesBtn"
             routerLink="/telemedicine"
             class="bg-medical-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-medical-700 transition-colors"
           >
@@ -73,6 +74,7 @@
 
           <ng-template #notesBtn>
             <button
+              (click)="openConsultationNotes(c)"
               class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors"
             >
               Consultation Notes
@@ -80,11 +82,17 @@
           </ng-template>
 
           <button
+            *ngIf="c.status === 'ACCEPTED'"
+            (click)="markCompleted(c.id)"
             class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-colors"
           >
-            Prescription
+            Complete
           </button>
         </div>
+      </div>
+
+      <div *ngIf="filteredConsultations.length === 0" class="p-8 text-center text-slate-500">
+        No consultations found.
       </div>
     </div>
   </div>

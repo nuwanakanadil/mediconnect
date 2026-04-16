@@ -9,10 +9,10 @@
       <div class="p-4 border-b border-slate-100 bg-slate-50/50">
         <div class="relative mb-3">
           <lucide-icon [img]="SearchIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></lucide-icon>
-          <input type="text" placeholder="Search patients..." class="w-full pl-12 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500" />
+          <input type="text" placeholder="Search patients..." (input)="onSearch($any($event.target).value)" class="w-full pl-12 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500" />
         </div>
         <div class="flex justify-between items-center text-xs font-medium text-slate-500 px-1">
-          <span>{{ patients.length }} Patients</span>
+          <span>{{ filteredPatients.length }} Patients</span>
           <button class="flex items-center gap-1 hover:text-slate-900">
             <lucide-icon [img]="FilterIcon" class="h-3 w-3"></lucide-icon>
             Filter
@@ -22,32 +22,37 @@
 
       <div class="flex-1 overflow-y-auto divide-y divide-slate-100">
         <div
-          *ngFor="let patient of patients; let i = index"
-          class="p-4 cursor-pointer transition-colors flex items-center justify-between"
-          [ngClass]="i === 0 ? 'bg-medical-50 border-l-4 border-l-medical-500' : 'hover:bg-slate-50 border-l-4 border-l-transparent'"
+          *ngFor="let patient of filteredPatients"
+          (click)="selectPatient(patient)"
+          class="p-4 cursor-pointer transition-colors flex items-center justify-between border-l-4"
+          [ngClass]="selectedPatient?.id === patient.id ? 'bg-medical-50 border-l-medical-500' : 'hover:bg-slate-50 border-l-transparent'"
         >
           <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-full bg-white border border-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shadow-sm">
-              {{ patient.name.split(' ')[0][0] }}{{ patient.name.split(' ')[1]?.[0] || '' }}
+              {{ initials(patient.name) }}
             </div>
             <div>
               <p class="font-bold text-slate-900 text-sm">{{ patient.name }}</p>
               <p class="text-xs text-slate-500">{{ patient.id }} • {{ patient.age }} yrs, {{ patient.gender }}</p>
             </div>
           </div>
-          <lucide-icon [img]="ChevronRightIcon" class="h-5 w-5" [ngClass]="i === 0 ? 'text-medical-500' : 'text-slate-300'"></lucide-icon>
+          <lucide-icon [img]="ChevronRightIcon" class="h-5 w-5" [ngClass]="selectedPatient?.id === patient.id ? 'text-medical-500' : 'text-slate-300'"></lucide-icon>
+        </div>
+
+        <div *ngIf="filteredPatients.length === 0" class="p-6 text-center text-slate-500 text-sm">
+          No patients found.
         </div>
       </div>
     </div>
 
-    <div class="flex-1 bg-slate-50/30 p-6 sm:p-8 overflow-y-auto">
+    <div *ngIf="selectedPatient; else noPatientState" class="flex-1 bg-slate-50/30 p-6 sm:p-8 overflow-y-auto">
       <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div class="flex items-center gap-4">
-            <div class="h-16 w-16 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-xl border-2 border-white shadow-sm">JW</div>
+            <div class="h-16 w-16 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-xl border-2 border-white shadow-sm">{{ initials(selectedPatient.name) }}</div>
             <div>
-              <h2 class="text-2xl font-bold text-slate-900">James Wilson</h2>
-              <p class="text-sm text-slate-500">PT-8492 • 45 years • Male</p>
+              <h2 class="text-2xl font-bold text-slate-900">{{ selectedPatient.name }}</h2>
+              <p class="text-sm text-slate-500">{{ selectedPatient.id }} • {{ selectedPatient.age }} years • {{ selectedPatient.gender }}</p>
             </div>
           </div>
           <button class="bg-medical-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-medical-700 transition-colors shadow-sm">
@@ -56,23 +61,30 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-y border-slate-100 mb-6">
-          <div><p class="text-xs text-slate-500 font-medium mb-1">Blood Type</p><p class="font-bold text-slate-900">O+</p></div>
-          <div><p class="text-xs text-slate-500 font-medium mb-1">Phone</p><p class="font-bold text-slate-900 text-sm">+1 (555) 123-4567</p></div>
-          <div><p class="text-xs text-slate-500 font-medium mb-1">Last Visit</p><p class="font-bold text-slate-900 text-sm">Oct 25, 2023</p></div>
-          <div><p class="text-xs text-slate-500 font-medium mb-1">Total Visits</p><p class="font-bold text-slate-900 text-sm">4</p></div>
+          <div><p class="text-xs text-slate-500 font-medium mb-1">Blood Type</p><p class="font-bold text-slate-900">N/A</p></div>
+          <div><p class="text-xs text-slate-500 font-medium mb-1">Phone</p><p class="font-bold text-slate-900 text-sm">{{ selectedPatient.phone }}</p></div>
+          <div><p class="text-xs text-slate-500 font-medium mb-1">Last Visit</p><p class="font-bold text-slate-900 text-sm">{{ selectedPatient.lastVisit | date:'mediumDate' }}</p></div>
+          <div><p class="text-xs text-slate-500 font-medium mb-1">Total Visits</p><p class="font-bold text-slate-900 text-sm">{{ selectedPatient.totalVisits }}</p></div>
         </div>
 
         <div class="space-y-4">
           <div>
             <h3 class="text-sm font-bold text-slate-900 mb-2">Known Allergies</h3>
-            <div class="flex gap-2">
-              <span class="bg-rose-50 text-rose-700 px-2.5 py-1 rounded-md text-xs font-medium border border-rose-100">Penicillin</span>
-              <span class="bg-rose-50 text-rose-700 px-2.5 py-1 rounded-md text-xs font-medium border border-rose-100">Peanuts</span>
+            <div *ngIf="selectedPatient.allergies?.length; else noAllergies" class="flex flex-wrap gap-2">
+              <span *ngFor="let allergy of selectedPatient.allergies" class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200">{{ allergy }}</span>
             </div>
+            <ng-template #noAllergies>
+              <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200">No allergy data available</span>
+            </ng-template>
           </div>
           <div>
             <h3 class="text-sm font-bold text-slate-900 mb-2">Current Medications</h3>
-            <p class="text-sm text-slate-600">Lisinopril 10mg (Daily)</p>
+            <div *ngIf="selectedPatient.currentMedications?.length; else noMeds" class="space-y-1">
+              <p *ngFor="let med of selectedPatient.currentMedications" class="text-sm text-slate-700">• {{ med }}</p>
+            </div>
+            <ng-template #noMeds>
+              <p class="text-sm text-slate-600">No medication records available yet.</p>
+            </ng-template>
           </div>
         </div>
       </div>
@@ -88,12 +100,8 @@
           </div>
           <div class="space-y-3">
             <div class="border-l-2 border-medical-500 pl-3">
-              <p class="text-sm font-bold text-slate-900">Routine Checkup</p>
-              <p class="text-xs text-slate-500">Oct 25, 2023 • Video Consult</p>
-            </div>
-            <div class="border-l-2 border-slate-200 pl-3">
-              <p class="text-sm font-bold text-slate-900">Initial Consultation</p>
-              <p class="text-xs text-slate-500">Sep 10, 2023 • In-Person</p>
+              <p class="text-sm font-bold text-slate-900">Latest Consultation</p>
+              <p class="text-xs text-slate-500">{{ selectedPatient.lastVisit | date:'medium' }} • Video Consult</p>
             </div>
           </div>
         </div>
@@ -107,17 +115,20 @@
             <button class="text-xs text-medical-600 font-medium">View All</button>
           </div>
           <div class="space-y-2">
-            <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-              <span class="text-sm font-medium text-slate-700 truncate">Blood Test Results.pdf</span>
-              <span class="text-xs text-slate-400">Oct 10</span>
+            <div *ngFor="let note of selectedPatient.notes" class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
+              <span class="text-sm font-medium text-slate-700 truncate">{{ note }}</span>
+              <span class="text-xs text-slate-400">Consultation note</span>
             </div>
-            <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-              <span class="text-sm font-medium text-slate-700 truncate">ECG Report.pdf</span>
-              <span class="text-xs text-slate-400">Sep 10</span>
-            </div>
+            <p *ngIf="selectedPatient.notes.length === 0" class="text-sm text-slate-500">No notes available.</p>
           </div>
         </div>
       </div>
     </div>
+
+    <ng-template #noPatientState>
+      <div class="flex-1 bg-slate-50/30 p-6 sm:p-8 overflow-y-auto flex items-center justify-center text-slate-500">
+        No patient records available yet.
+      </div>
+    </ng-template>
   </div>
 </div>

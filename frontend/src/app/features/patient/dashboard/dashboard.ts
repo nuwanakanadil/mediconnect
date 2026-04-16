@@ -70,29 +70,7 @@ export class DashboardComponent {
     },
   ];
 
-  appointments = [
-    {
-      doctor: 'Dr. Sarah Smith',
-      spec: 'Cardiology',
-      date: 'Tomorrow, 10:00 AM',
-      type: 'Video Consult',
-      status: 'confirmed',
-    },
-    {
-      doctor: 'Dr. Michael Chen',
-      spec: 'Neurology',
-      date: 'Oct 24, 2:30 PM',
-      type: 'In-Person',
-      status: 'pending',
-    },
-    {
-      doctor: 'Dr. Emily Johnson',
-      spec: 'Pediatrics',
-      date: 'Nov 02, 11:15 AM',
-      type: 'In-Person',
-      status: 'confirmed',
-    },
-  ];
+  appointments: any[] = []; // Waiting for GET /api/appointments/requests/patient/{patientId} endpoint
 
   notifications = [
     {

@@ -14,7 +14,7 @@ export class StatusBadgeComponent {
   get badgeClasses(): string {
     const value = this.status.toLowerCase();
 
-    if (value === 'confirmed') {
+    if (value === 'confirmed' || value === 'accepted') {
       return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
     }
 
@@ -22,7 +22,7 @@ export class StatusBadgeComponent {
       return 'bg-amber-100 text-amber-700 border border-amber-200';
     }
 
-    if (value === 'cancelled') {
+    if (value === 'cancelled' || value === 'rejected') {
       return 'bg-rose-100 text-rose-700 border border-rose-200';
     }
 

@@ -209,8 +209,8 @@
               <div class="flex items-start gap-4 mb-4">
                 <div class="relative">
                   <img
-                    [src]="doctor.image"
-                    [alt]="doctor.name"
+                    [src]="'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'"
+                    [alt]="doctor.firstName + ' ' + doctor.lastName"
                     class="w-16 h-16 rounded-full object-cover border-2 border-slate-100"
                   />
                   <div
@@ -220,14 +220,14 @@
 
                 <div>
                   <h3 class="text-lg font-bold text-slate-900 leading-tight mb-1">
-                    {{ doctor.name }}
+                    Dr. {{ doctor.firstName }} {{ doctor.lastName }}
                   </h3>
                   <p class="text-sm text-medical-600 font-medium mb-1">
-                    {{ doctor.specialty }}
+                    {{ doctor.specialization }}
                   </p>
                   <p class="text-xs text-slate-500 flex items-center gap-2">
                     <lucide-icon [img]="MapPinIcon" class="h-3 w-3"></lucide-icon>
-                    {{ doctor.hospital }}
+                    {{ doctor.hospitalName || 'General Hospital' }}
                   </p>
                 </div>
               </div>
@@ -239,10 +239,10 @@
                     class="h-4 w-4 text-amber-400 fill-amber-400"
                   ></lucide-icon>
                   <span class="font-bold text-slate-900 text-sm">
-                    {{ doctor.rating }}
+                    4.9
                   </span>
                   <span class="text-xs text-slate-500">
-                    ({{ doctor.reviews }})
+                    (120)
                   </span>
                 </div>
 
@@ -250,7 +250,7 @@
                   <span class="text-xs text-slate-500 block">
                     Consultation Fee
                   </span>
-                  <span class="font-bold text-slate-900">${{ doctor.fee }}</span>
+                  <span class="font-bold text-slate-900">${{ doctor.consultationFee }}</span>
                 </div>
               </div>
 
@@ -263,13 +263,12 @@
                   <span>
                     Next Available:
                     <span class="font-medium text-slate-900">
-                      {{ doctor.nextSlot }}
+                      Check Schedule
                     </span>
                   </span>
                 </div>
 
                 <div
-                  *ngIf="doctor.videoConsult"
                   class="flex items-center gap-2 text-sm text-slate-600"
                 >
                   <lucide-icon
@@ -284,17 +283,24 @@
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
               <a
                 routerLink="/patient/book-appointment"
+                [queryParams]="{ doctorId: doctor.id }"
                 class="flex-1 bg-medical-600 text-white text-center py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors"
               >
                 Book Now
               </a>
-              <button
+              <a
+                [routerLink]="['/find-doctors', doctor.id]"
                 class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors"
               >
                 Profile
-              </button>
+              </a>
             </div>
           </div>
+        </div>
+
+        <div *ngIf="doctors.length === 0" class="bg-white border border-slate-200 rounded-2xl p-10 text-center text-slate-600">
+          <p class="text-lg font-bold text-slate-900 mb-1">No doctors available right now</p>
+          <p class="text-sm">Check if doctors are active in backend data, then refresh this page.</p>
         </div>
 
         <div class="mt-10 flex justify-center">

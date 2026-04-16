@@ -151,6 +151,10 @@ export class DashboardLayoutComponent {
   }
 
   logout() {
+    localStorage.removeItem('role');
+    localStorage.removeItem('doctorId');
+    localStorage.removeItem('doctorFirstName');
+    localStorage.removeItem('doctorLastName');
     this.router.navigate(['/login']);
   }
 

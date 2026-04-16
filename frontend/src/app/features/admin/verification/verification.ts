@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { DoctorService, Doctor } from '../../../core/services/doctor.service';
 import {
   CheckCircle2Icon,
   EyeIcon,
@@ -15,15 +16,22 @@ import {
   templateUrl: './verification.html',
   styleUrl: './verification.css',
 })
-export class VerificationComponent {
+export class VerificationComponent implements OnInit {
   readonly ShieldCheckIcon = ShieldCheckIcon;
   readonly CheckCircle2Icon = CheckCircle2Icon;
   readonly XCircleIcon = XCircleIcon;
   readonly EyeIcon = EyeIcon;
 
-  queue = [
-    { name: 'Dr. Alan Moore', specialty: 'Neurology', submitted: 'Today', doc: 'license.pdf' },
-    { name: 'Dr. Priya Nair', specialty: 'Dermatology', submitted: 'Yesterday', doc: 'credentials.pdf' },
-    { name: 'Dr. Sam Patel', specialty: 'Pediatrics', submitted: 'Oct 24, 2023', doc: 'registration.pdf' },
-  ];
+  queue: Doctor[] = [];
+
+  constructor(private doctorService: DoctorService) {}
+
+  ngOnInit() {
+    this.doctorService.getAllDoctors().subscribe({
+      next: (data) => {
+        this.queue = data.filter(d => !d.verified);
+      },
+      error: (err) => console.error('Failed to load verification queue', err)
+    });
+  }
 }

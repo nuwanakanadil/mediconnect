@@ -5,6 +5,7 @@ import { DashboardLayoutComponent } from './core/layouts/dashboard-layout/dashbo
 
 import { LandingComponent } from './features/public/landing/landing';
 import { FindDoctorsComponent } from './features/public/find-doctors/find-doctors';
+import { DoctorPublicProfileComponent } from './features/public/doctor-public-profile/doctor-public-profile';
 
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
@@ -53,6 +54,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: LandingComponent },
       { path: 'find-doctors', component: FindDoctorsComponent },
+      { path: 'find-doctors/:id', component: DoctorPublicProfileComponent },
     ],
   },
 

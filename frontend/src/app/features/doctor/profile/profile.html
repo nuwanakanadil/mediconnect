@@ -1,82 +1,154 @@
 <div class="max-w-4xl mx-auto space-y-6">
   <div>
-    <h1 class="text-2xl font-bold text-slate-900">Doctor Profile</h1>
-    <p class="text-slate-500 text-sm mt-1">Manage your professional details and account settings.</p>
+    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Doctor Profile</h1>
+    <p class="text-slate-500 mt-1">Manage your professional details, credentials and account settings.</p>
   </div>
 
-  <div class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
-    <div class="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row items-center gap-6">
-      <div class="relative">
-        <div class="h-24 w-24 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-3xl border-4 border-white shadow-md">
-          SS
+  <div *ngIf="loading" class="p-8 text-center text-slate-500">Loading profile...</div>
+
+  <div *ngIf="!loading && errorMessage" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <p class="font-bold">Profile load issue</p>
+        <p class="text-sm text-amber-800 mt-1">{{ errorMessage }}</p>
+      </div>
+      <button type="button" (click)="retryLoadProfile()" class="inline-flex items-center justify-center rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition-colors">
+        Retry
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading" class="bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden">
+    <div class="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
+      <!-- Decorative background blob -->
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-medical-50 rounded-full blur-3xl opacity-50 z-0"></div>
+      
+      <div class="relative z-10">
+        <div class="h-28 w-28 rounded-full bg-gradient-to-tr from-medical-100 to-medical-50 text-medical-700 flex items-center justify-center font-bold text-4xl border-4 border-white shadow-xl">
+          {{ doctor.firstName?.charAt(0) || '' }}{{ doctor.lastName?.charAt(0) || '' }}
         </div>
-        <button class="absolute bottom-0 right-0 bg-white border border-slate-200 p-1.5 rounded-full text-slate-600 hover:text-medical-600 shadow-sm">
+        <button class="absolute bottom-1 right-1 bg-white border border-slate-200 p-2 rounded-full text-slate-600 hover:text-medical-600 shadow-sm transition-transform hover:scale-110">
           <lucide-icon [img]="UserIcon" class="h-4 w-4"></lucide-icon>
         </button>
       </div>
-      <div class="text-center sm:text-left">
-        <div class="flex items-center gap-3 justify-center sm:justify-start mb-1">
-          <h2 class="text-2xl font-bold text-slate-900">Dr. Sarah Smith</h2>
-          <span class="bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
-            Verified
+      <div class="text-center sm:text-left z-10">
+        <div class="flex flex-col sm:flex-row items-center gap-3 justify-center sm:justify-start mb-1">
+          <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Dr. {{doctor.firstName}} {{doctor.lastName}}</h2>
+          <span *ngIf="doctor.verified" class="bg-emerald-50 text-emerald-700 flex items-center gap-1 border border-emerald-100 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
+            <lucide-icon [img]="CheckCircleIcon" class="h-3 w-3"></lucide-icon> Verified
+          </span>
+          <span *ngIf="!doctor.verified" class="bg-amber-50 text-amber-700 border border-amber-100 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
+            Pending Verification
           </span>
         </div>
-        <p class="text-slate-500">Cardiology • Metro General Hospital</p>
+        <p class="text-slate-500 font-medium">{{doctor.specialization || 'Specialization TBD'}} • {{doctor.hospitalName || 'No Hospital Assigned'}}</p>
       </div>
     </div>
 
-    <div class="p-6 sm:p-8">
-      <form class="space-y-6">
+    <div class="p-6 sm:p-8 relative z-10">
+      <form class="space-y-8" (ngSubmit)="saveProfile()">
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Section 1: Basic Information -->
+          <div class="col-span-1 sm:col-span-2 border-b border-slate-100 pb-2 mb-2">
+            <h3 class="text-lg font-semibold text-slate-800">Basic Information</h3>
+          </div>
+
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">First Name</label>
-            <input type="text" value="Sarah" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5 line-clamp-1">First Name</label>
+            <input type="text" name="firstName" [(ngModel)]="doctor.firstName" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Last Name</label>
-            <input type="text" value="Smith" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Last Name</label>
+            <input type="text" name="lastName" [(ngModel)]="doctor.lastName" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
-            <div class="relative">
-              <lucide-icon [img]="MailIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></lucide-icon>
-              <input type="email" value="sarah.smith@example.com" class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
+            <div class="relative group">
+              <lucide-icon [img]="MailIcon" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-medical-500 transition-colors"></lucide-icon>
+              <input type="email" name="email" [(ngModel)]="doctor.email" class="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm" />
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone Number</label>
-            <div class="relative">
-              <lucide-icon [img]="PhoneIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></lucide-icon>
-              <input type="tel" value="+1 (555) 987-4321" class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Phone Number</label>
+            <div class="relative group">
+              <lucide-icon [img]="PhoneIcon" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-medical-500 transition-colors"></lucide-icon>
+              <input type="tel" name="phone" [(ngModel)]="doctor.phone" class="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm" />
+            </div>
+          </div>
+
+          <!-- Section 2: Professional Information -->
+          <div class="col-span-1 sm:col-span-2 border-b border-slate-100 pb-2 mt-6 mb-2 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-slate-800">Professional Details</h3>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Specialty</label>
+            <div class="relative group">
+              <lucide-icon [img]="StethoscopeIcon" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-medical-500 transition-colors"></lucide-icon>
+              <input type="text" name="spec" [(ngModel)]="doctor.specialization" class="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm" />
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Specialty</label>
-            <div class="relative">
-              <lucide-icon [img]="StethoscopeIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></lucide-icon>
-              <input type="text" value="Cardiology" class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Hospital / Clinic</label>
+            <div class="relative group">
+              <lucide-icon [img]="BriefcaseIcon" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-medical-500 transition-colors"></lucide-icon>
+              <input type="text" name="hosp" [(ngModel)]="doctor.hospitalName" class="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm" />
             </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Hospital / Clinic</label>
-            <div class="relative">
-              <lucide-icon [img]="BriefcaseIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></lucide-icon>
-              <input type="text" value="Metro General Hospital" class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500" />
-            </div>
-          </div>
+          
           <div class="sm:col-span-2">
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Professional Bio</label>
-            <textarea class="w-full px-4 py-3 h-32 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 resize-none">Board-certified cardiologist with over 15 years of clinical experience in preventive cardiology and non-invasive diagnostic care.</textarea>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Professional Bio</label>
+            <textarea name="bio" [(ngModel)]="doctor.bio" class="w-full px-4 py-3 h-32 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 transition-all shadow-sm resize-none"></textarea>
           </div>
         </div>
 
-        <div class="pt-6 flex justify-end">
+        <!-- Section 3: Verification Documents (Requirement!) -->
+        <div class="mt-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <h3 class="text-lg font-semibold text-slate-800 mb-1">Doctor Verification Documents</h3>
+          <p class="text-sm text-slate-500 mb-4">Upload your medical board registration, medical degree, or ID proofs. Member 4 (Admin) uses these to verify your account.</p>
+          
+          <div class="flex flex-col gap-4">
+             <!-- Uploaded Files List -->
+             <div *ngIf="doctor.verificationDocuments && doctor.verificationDocuments.length > 0" class="flex flex-col gap-2 mb-2">
+               <div *ngFor="let doc of doctor.verificationDocuments" class="bg-white border border-slate-200 px-4 py-3 rounded-lg flex items-center justify-between shadow-sm">
+                 <div class="flex items-center gap-3">
+                   <div class="bg-blue-50 text-blue-600 p-2 rounded-md">
+                    <lucide-icon [img]="FileTextIcon" class="h-4 w-4"></lucide-icon>
+                   </div>
+                   <span class="text-sm font-medium text-slate-700">{{ doc }}</span>
+                 </div>
+                 <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">Uploaded</span>
+               </div>
+             </div>
+
+             <!-- Upload Button Area -->
+             <label for="doc-upload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-white hover:bg-slate-50/50 transition-colors">
+                 <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-500">
+                     <lucide-icon [img]="UploadIcon" class="h-8 w-8 mb-2 text-medical-400"></lucide-icon>
+                     <p class="mb-1 text-sm"><span class="font-semibold text-medical-600">Click to upload</span> or drag and drop</p>
+                     <p class="text-xs text-slate-400">PDF, JPG, or PNG (MAX. 5MB)</p>
+                 </div>
+                 <input id="doc-upload" type="file" class="hidden" (change)="handleDocumentUpload($event)" accept=".pdf,.jpg,.png" />
+             </label>
+          </div>
+        </div>
+
+        <div class="pt-6 border-t border-slate-100 flex justify-between items-center">
+          <div class="flex gap-2">
+            <button type="button" (click)="verifyProfile()" class="px-4 py-2 bg-emerald-50 text-emerald-700 font-semibold rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-all text-sm">
+              Verify Profile
+            </button>
+            <button type="button" (click)="deactivateProfile()" class="px-4 py-2 bg-rose-50 text-rose-700 font-semibold rounded-xl border border-rose-200 hover:bg-rose-100 transition-all text-sm">
+              Deactivate Profile
+            </button>
+          </div>
           <button
-            type="button"
-            class="bg-medical-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-medical-700 transition-colors shadow-sm flex items-center gap-2"
+            type="submit"
+            class="bg-gradient-to-r from-medical-600 to-medical-500 text-white px-8 py-3 rounded-xl font-bold hover:from-medical-700 hover:to-medical-600 transition-all shadow-md flex items-center gap-2 transform hover:-translate-y-0.5"
           >
             <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
-            Save Changes
+            Save Profile
           </button>
         </div>
       </form>

@@ -65,10 +65,12 @@
               class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"
             ></lucide-icon>
             <input
+              formControlName="email"
               type="email"
               formControlName="email"
               placeholder="name@example.com"
               class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition-colors"
+              [ngClass]="{'border-red-500': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
               required
             />
           </div>
@@ -92,10 +94,12 @@
               class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"
             ></lucide-icon>
             <input
+              formControlName="password"
               type="password"
               formControlName="password"
               placeholder="••••••••"
               class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition-colors"
+              [ngClass]="{'border-red-500': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
               required
             />
           </div>
