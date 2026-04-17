@@ -5,7 +5,7 @@
       <p class="text-slate-500 mt-1">Review patient records, write consultation notes, and issue digital prescriptions.</p>
     </div>
 
-    <button (click)="showCreateModal = true" class="bg-gradient-to-r from-medical-600 to-medical-500 text-white px-5 py-2.5 rounded-xl font-bold hover:from-medical-700 hover:to-medical-600 transition-all shadow-md flex items-center gap-2 transform hover:-translate-y-0.5">
+    <button (click)="openCreateModalForPrescription()" class="bg-gradient-to-r from-medical-600 to-medical-500 text-white px-5 py-2.5 rounded-xl font-bold hover:from-medical-700 hover:to-medical-600 transition-all shadow-md flex items-center gap-2 transform hover:-translate-y-0.5">
       <lucide-icon [img]="PlusIcon" class="h-5 w-5"></lucide-icon>
       Start Consultation
     </button>
@@ -68,7 +68,7 @@
           <lucide-icon [img]="FileTextIcon" class="h-5 w-5 text-medical-600"></lucide-icon>
           Consultation & Prescription
         </h2>
-        <button (click)="showCreateModal = false" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
+        <button (click)="closeCreateModal()" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
           <lucide-icon [img]="XIcon" class="h-5 w-5"></lucide-icon>
         </button>
       </div>
@@ -83,6 +83,14 @@
                <p class="text-xs text-slate-500">ID: {{ newPrescription.patientId || 'Unassigned' }}</p>
              </div>
              <input type="text" [(ngModel)]="newPrescription.patientId" placeholder="Patient ID" class="w-24 px-2 py-1 text-xs border rounded-md" />
+           </div>
+
+           <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+             <div>
+               <h4 class="text-sm font-bold text-slate-800">Appointment</h4>
+               <p class="text-xs text-slate-500">ID: {{ newPrescription.appointmentId || 'Unassigned' }}</p>
+             </div>
+             <input type="text" [(ngModel)]="newPrescription.appointmentId" placeholder="Appt ID" class="w-24 px-2 py-1 text-xs border rounded-md" />
            </div>
 
            <div class="mt-6">
@@ -176,9 +184,9 @@
       
       <!-- Footer -->
       <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 rounded-b-3xl">
-        <button (click)="showCreateModal = false" class="px-5 py-2 text-slate-600 bg-white border border-slate-300 font-semibold rounded-xl hover:bg-slate-50">Cancel</button>
+        <button (click)="closeCreateModal()" class="px-5 py-2 text-slate-600 bg-white border border-slate-300 font-semibold rounded-xl hover:bg-slate-50">Cancel</button>
         <button *ngIf="isNotesOnlyContext" (click)="saveConsultationNotes()" class="px-5 py-2 text-white bg-slate-800 font-bold rounded-xl hover:bg-slate-700 shadow-md">Save Consultation Notes</button>
-        <button (click)="savePrescription()" class="px-5 py-2 text-white bg-medical-600 font-bold rounded-xl hover:bg-medical-700 shadow-md">Complete & Issue Prescription</button>
+        <button *ngIf="!isNotesOnlyContext" (click)="savePrescription()" class="px-5 py-2 text-white bg-medical-600 font-bold rounded-xl hover:bg-medical-700 shadow-md">Complete & Issue Prescription</button>
       </div>
 
     </div>
