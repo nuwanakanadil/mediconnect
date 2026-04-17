@@ -53,6 +53,7 @@ export class PrescriptionsComponent implements OnInit {
   };
 
   currentMedication = { name: '', dosage: '', frequency: '', durationDays: 0 };
+  private notesContextFromRoute = false;
 
   constructor(
     private rxService: PrescriptionService,
@@ -64,6 +65,7 @@ export class PrescriptionsComponent implements OnInit {
     const appointmentId = this.route.snapshot.queryParamMap.get('appointmentId') ?? '';
     const openCreateModal = this.route.snapshot.queryParamMap.get('openCreate') === '1';
     this.isNotesOnlyContext = this.route.snapshot.queryParamMap.get('mode') === 'notes';
+    this.notesContextFromRoute = this.isNotesOnlyContext;
 
     if (patientId) {
       this.newPrescription.patientId = patientId;
@@ -124,6 +126,31 @@ export class PrescriptionsComponent implements OnInit {
 
   removeMedication(index: number) {
     this.newPrescription.medications.splice(index, 1);
+  }
+
+  openCreateModalForPrescription() {
+    this.showCreateModal = true;
+    this.isNotesOnlyContext = false;
+    this.newPrescription.patientId = '';
+    this.newPrescription.appointmentId = '';
+    this.newPrescription.diagnosis = '';
+    this.newPrescription.additionalNotes = '';
+    this.newPrescription.medications = [];
+    this.currentMedication = { name: '', dosage: '', frequency: '', durationDays: 0 };
+  }
+
+  closeCreateModal() {
+    this.showCreateModal = false;
+    this.currentMedication = { name: '', dosage: '', frequency: '', durationDays: 0 };
+
+    if (this.notesContextFromRoute) {
+      this.newPrescription.patientId = this.route.snapshot.queryParamMap.get('patientId') ?? '';
+      this.newPrescription.appointmentId = this.route.snapshot.queryParamMap.get('appointmentId') ?? '';
+      this.isNotesOnlyContext = true;
+      return;
+    }
+
+    this.isNotesOnlyContext = false;
   }
 
   savePrescription() {
