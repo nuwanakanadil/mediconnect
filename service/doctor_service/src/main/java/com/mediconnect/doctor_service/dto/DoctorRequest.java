@@ -28,6 +28,8 @@ public class DoctorRequest {
     @NotBlank(message = "Phone number is required")
     private String phone;
 
+    private String password;
+
     @NotBlank(message = "Specialization is required")
     private String specialization;
 

@@ -24,6 +24,7 @@ public class Doctor {
     private String lastName;
     private String email;
     private String phone;
+    private String password;
     private String specialization;
     private String qualification;
     private Integer experienceYears;

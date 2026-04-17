@@ -45,9 +45,32 @@
         </span>
       </div>
 
-      <h2 class="text-3xl font-bold text-slate-900 mb-2">Log in</h2>
+      <div class="mb-6">
+        <div class="inline-flex rounded-xl bg-slate-100 p-1">
+          <button
+            type="button"
+            (click)="setLoginMode('patient')"
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+            [ngClass]="loginMode === 'patient' ? 'bg-white text-medical-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+          >
+            Patient Login
+          </button>
+          <button
+            type="button"
+            (click)="setLoginMode('doctor')"
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+            [ngClass]="loginMode === 'doctor' ? 'bg-white text-medical-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+          >
+            Doctor Login
+          </button>
+        </div>
+      </div>
+
+      <h2 class="text-3xl font-bold text-slate-900 mb-2">
+        {{ loginMode === 'doctor' ? 'Doctor Login' : 'Patient Login' }}
+      </h2>
       <p class="text-slate-500 mb-8">
-        Enter your credentials to access your account.
+        Enter your credentials to access your {{ loginMode }} account.
       </p>
 
       <div *ngIf="errorMessage" class="mb-6 p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 text-sm">
@@ -67,7 +90,6 @@
             <input
               formControlName="email"
               type="email"
-              formControlName="email"
               placeholder="name@example.com"
               class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition-colors"
               [ngClass]="{'border-red-500': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
@@ -96,7 +118,6 @@
             <input
               formControlName="password"
               type="password"
-              formControlName="password"
               placeholder="••••••••"
               class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition-colors"
               [ngClass]="{'border-red-500': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"

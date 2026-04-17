@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   SearchIcon,
   MapPinIcon,
@@ -21,6 +21,7 @@ interface Doctor {
   fullName: string;
   specialization: string;
   hospital: string;
+  hospitalName?: string;
   rating: number;
   consultingFee: number;
   bio: string;
@@ -34,7 +35,7 @@ interface Doctor {
   templateUrl: './book-appointment.html',
   styleUrl: './book-appointment.css',
 })
-export class BookAppointmentComponent implements OnInit {
+export class BookAppointmentComponent {
   readonly SearchIcon = SearchIcon;
   readonly MapPinIcon = MapPinIcon;
   readonly StarIcon = StarIcon;
