@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Patient, MedicalReport, MedicalHistory, Prescription, Appointment, Payment, Dependent } from '../models/patient.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
-  private apiUrl = 'http://localhost:8081/api/patients';
+  private apiUrl = `${environment.patientApiBaseUrl}/patients`;
 
   constructor(private http: HttpClient) {}
 
@@ -91,6 +92,6 @@ export class PatientService {
   }
 
   getDoctorsBySpecialty(specialty: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8081/api/doctors/search?specialization=${specialty}`);
+    return this.http.get<any[]>(`${environment.patientApiBaseUrl}/doctors/search?specialization=${encodeURIComponent(specialty)}`);
   }
 }

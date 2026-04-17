@@ -2,6 +2,8 @@ package com.mediconnect.doctor_service.service.impl;
 
 import com.mediconnect.doctor_service.dto.DoctorRequest;
 import com.mediconnect.doctor_service.dto.DoctorResponse;
+import com.mediconnect.doctor_service.dto.DoctorLoginRequest;
+import com.mediconnect.doctor_service.dto.DoctorAuthResponse;
 import com.mediconnect.doctor_service.entity.Doctor;
 import com.mediconnect.doctor_service.entity.Schedule;
 import com.mediconnect.doctor_service.exception.ResourceNotFoundException;
@@ -22,6 +24,10 @@ public class DoctorServiceImpl implements DoctorService {
     public DoctorResponse createDoctor(DoctorRequest doctorRequest) {
         Doctor doctor = new Doctor();
         mapRequestToEntity(doctorRequest, doctor);
+        if (doctor.getPassword() == null || doctor.getPassword().isBlank()) {
+            // Backward-compatible default for existing flows that did not provide password.
+            doctor.setPassword(doctorRequest.getPhone());
+        }
         doctor.setVerified(false);
         doctor.setActive(true);
 
@@ -50,7 +56,11 @@ public class DoctorServiceImpl implements DoctorService {
         Doctor existingDoctor = doctorRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + id));
 
+        String existingPassword = existingDoctor.getPassword();
         mapRequestToEntity(doctorRequest, existingDoctor);
+        if (doctorRequest.getPassword() == null || doctorRequest.getPassword().isBlank()) {
+            existingDoctor.setPassword(existingPassword);
+        }
 
         Doctor updatedDoctor = doctorRepository.save(existingDoctor);
         return mapEntityToResponse(updatedDoctor);
@@ -113,11 +123,49 @@ public class DoctorServiceImpl implements DoctorService {
         return mapEntityToResponse(updatedDoctor);
     }
 
+    @Override
+    public DoctorAuthResponse loginDoctor(DoctorLoginRequest loginRequest) {
+        Doctor doctor = doctorRepository.findByEmailIgnoreCase(loginRequest.getEmail())
+            .orElseThrow(() -> new IllegalArgumentException("Invalid doctor email or password"));
+
+        if (!doctor.isActive()) {
+            throw new IllegalArgumentException("Doctor account is deactivated");
+        }
+
+        String storedPassword = doctor.getPassword();
+        boolean matches;
+
+        if (storedPassword == null || storedPassword.isBlank()) {
+            // Legacy compatibility: if password was never stored, trust first successful doctor login
+            // attempt and persist that password for subsequent logins.
+            doctor.setPassword(loginRequest.getPassword());
+            doctorRepository.save(doctor);
+            matches = true;
+        } else {
+            matches = storedPassword.equals(loginRequest.getPassword());
+        }
+
+        if (!matches) {
+            throw new IllegalArgumentException("Invalid doctor email or password");
+        }
+
+        String fullName = (doctor.getFirstName() + " " + doctor.getLastName()).trim();
+        return new DoctorAuthResponse(
+            doctor.getId(),
+            doctor.getEmail(),
+            doctor.getFirstName(),
+            doctor.getLastName(),
+            fullName,
+            "DOCTOR"
+        );
+    }
+
     private void mapRequestToEntity(DoctorRequest doctorRequest, Doctor doctor) {
         doctor.setFirstName(doctorRequest.getFirstName());
         doctor.setLastName(doctorRequest.getLastName());
         doctor.setEmail(doctorRequest.getEmail());
         doctor.setPhone(doctorRequest.getPhone());
+        doctor.setPassword(doctorRequest.getPassword());
         doctor.setSpecialization(doctorRequest.getSpecialization());
         doctor.setQualification(doctorRequest.getQualification());
         doctor.setExperienceYears(doctorRequest.getExperienceYears());

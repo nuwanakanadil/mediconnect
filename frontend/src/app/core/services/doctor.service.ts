@@ -27,6 +27,7 @@ export interface DoctorPayload {
   lastName: string;
   email: string;
   phone: string;
+  password?: string;
   specialization: string;
   qualification: string;
   experienceYears: number;
@@ -36,6 +37,20 @@ export interface DoctorPayload {
   location: string;
   verificationDocuments: string[];
   availability: any[];
+}
+
+export interface DoctorLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface DoctorAuthResponse {
+  doctorId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  role: string;
 }
 
 @Injectable({
@@ -48,6 +63,10 @@ export class DoctorService {
 
   getAllDoctors(): Observable<Doctor[]> {
     return this.http.get<Doctor[]>(this.apiUrl);
+  }
+
+  loginDoctor(payload: DoctorLoginRequest): Observable<DoctorAuthResponse> {
+    return this.http.post<DoctorAuthResponse>(`${this.apiUrl}/auth/login`, payload);
   }
 
   getDoctorById(id: string): Observable<Doctor> {
@@ -94,6 +113,7 @@ export class DoctorService {
       lastName: payload.lastName ?? '',
       email: payload.email ?? '',
       phone: payload.phone ?? '',
+      password: (payload as any).password ?? undefined,
       specialization: payload.specialization ?? '',
       qualification: payload.qualification ?? '',
       experienceYears: Number(payload.experienceYears ?? 0),

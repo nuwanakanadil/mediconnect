@@ -2,6 +2,8 @@ package com.mediconnect.doctor_service.controller;
 
 import com.mediconnect.doctor_service.dto.DoctorRequest;
 import com.mediconnect.doctor_service.dto.DoctorResponse;
+import com.mediconnect.doctor_service.dto.DoctorLoginRequest;
+import com.mediconnect.doctor_service.dto.DoctorAuthResponse;
 import com.mediconnect.doctor_service.entity.Schedule;
 import com.mediconnect.doctor_service.service.DoctorService;
 import jakarta.validation.Valid;
@@ -20,6 +22,11 @@ public class DoctorController {
     @PostMapping
     public DoctorResponse createDoctor(@Valid @RequestBody DoctorRequest doctorRequest) {
         return doctorService.createDoctor(doctorRequest);
+    }
+
+    @PostMapping("/auth/login")
+    public DoctorAuthResponse loginDoctor(@Valid @RequestBody DoctorLoginRequest loginRequest) {
+        return doctorService.loginDoctor(loginRequest);
     }
 
     @GetMapping
